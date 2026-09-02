@@ -1,0 +1,11 @@
+{
+  "name": "Minuto da Provisão",
+  "short_name": "Provisão",
+  "description": "Uma jornada de 365 devocionais para empreendedores cristãos.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f5ef",
+  "theme_color": "#102820",
+  "lang": "pt-BR",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

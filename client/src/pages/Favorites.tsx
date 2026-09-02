@@ -1,0 +1,17 @@
+import AppShell from "@/components/AppShell";
+import { Button } from "@/components/ui/button";
+import { startLogin } from "@/const";
+import { useAuth } from "@/_core/hooks/useAuth";
+import { trpc } from "@/lib/trpc";
+import { BookOpen, Heart, Loader2, Sparkles } from "lucide-react";
+import { Link } from "wouter";
+
+export default function Favorites() {
+  const { isAuthenticated } = useAuth();
+  const listQuery = trpc.devotional.list.useQuery(undefined, { enabled: isAuthenticated });
+  const stateQuery = trpc.devotional.state.useQuery(undefined, { enabled: isAuthenticated });
+  if (!isAuthenticated) return <AppShell><div className="mx-auto max-w-2xl px-4 py-24 text-center"><span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f7e9e6] text-[#b85b4d]"><Heart className="h-6 w-6" /></span><p className="mt-6 text-xs font-bold uppercase tracking-[.18em] text-[#a07c34]">Meus Favoritos</p><h1 className="mt-3 font-serif text-4xl font-semibold">Guarde as leituras que falaram com você.</h1><p className="mx-auto mt-4 max-w-lg text-sm leading-6 text-[#718077]">Entre para criar uma coleção pessoal de devocionais para revisitar quando precisar.</p><Button onClick={startLogin} className="mt-7 rounded-xl bg-[#102820] text-white">Entrar para salvar favoritos</Button></div></AppShell>;
+  if (listQuery.isLoading || stateQuery.isLoading) return <AppShell><div className="flex min-h-[70vh] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-[#b38c31]" /></div></AppShell>;
+  const favoriteIds = new Set(stateQuery.data?.favoriteIds ?? []); const favorites = (listQuery.data ?? []).filter(item => favoriteIds.has(item.id ?? item.dayNumber));
+  return <AppShell><div className="mx-auto max-w-5xl px-4 py-7 sm:px-7 lg:py-10"><p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[.18em] text-[#a07c34]"><Sparkles className="h-3.5 w-3.5" /> Meus Favoritos</p><h1 className="mt-2 font-serif text-4xl font-semibold tracking-tight">Leituras para guardar perto.</h1><p className="mt-3 text-sm leading-6 text-[#718077]">Sua seleção de devocionais que merecem ser lembrados.</p><section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{favorites.map(item => <Link key={item.dayNumber} href={`/devocional/${item.dayNumber}`} className="group rounded-2xl border border-[#e5dfd1] bg-[#fffdfa] p-5 transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-white/10 dark:bg-[#17231f]"><div className="flex items-center justify-between"><span className="text-[10px] font-bold uppercase tracking-[.16em] text-[#a58137]">Dia {item.dayNumber}</span><Heart className="h-4 w-4 fill-[#b85b4d] text-[#b85b4d]" /></div><p className="mt-5 text-[10px] font-bold uppercase tracking-[.16em] text-[#597761]">{item.theme}</p><h2 className="mt-1 font-serif text-xl font-semibold leading-7 group-hover:text-[#356248]">{item.title}</h2><p className="mt-3 text-xs text-[#7e8a82]">{item.bibleReference} · NVI</p></Link>)}</section>{favorites.length === 0 && <div className="mt-10 rounded-[24px] border border-dashed border-[#d8d0bf] bg-[#fffdfa]/60 p-12 text-center dark:border-white/10 dark:bg-white/[.02]"><BookOpen className="mx-auto h-6 w-6 text-[#b38c31]" /><h2 className="mt-4 font-serif text-2xl">Nenhum favorito por enquanto.</h2><p className="mt-2 text-sm text-[#75827a]">Abra um devocional e toque no coração para mantê-lo por perto.</p><Link href="/jornada" className="mt-5 inline-block text-sm font-semibold text-[#356248]">Explorar a jornada</Link></div>}</div></AppShell>;
+}

@@ -1,0 +1,5 @@
+Visual validation — 2026-09-02
+
+Desktop: Home, devotional detail, annual journey, journal, favorites, profile, and admin screens rendered without clipping or color-contrast defects. The light premium palette, dark-green desktop sidebar, typography, devotionals, and data views are consistent.
+
+Mobile: Home, devotional detail, and annual journey rendered at 390x844 with a responsive header, readable content, and bottom navigation. Mobile navigation was updated after validation to limit the persistent bar to Hoje, Jornada, Diário, Favoritos, and Perfil; the admin item remains available through the slide-out menu for administrators.
