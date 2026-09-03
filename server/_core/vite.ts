@@ -43,7 +43,13 @@ export async function setupVite(app: Express, server: Server) {
         `src="/src/main.tsx?v=${nanoid()}"`
       );
       const page = await vite.transformIndexHtml(url, template);
-      res.status(200).set({ "Content-Type": "text/html" }).end(page);
+      // Middleware mode still injects /@vite/client, whose WebSocket points
+      // at localhost:5173 and is not exposed by WebDev's managed proxy.
+      const pageWithoutHmrClient = page.replace(
+        /<script type="module" src="\/@vite\/client"><\/script>\s*/,
+        ""
+      );
+      res.status(200).set({ "Content-Type": "text/html" }).end(pageWithoutHmrClient);
     } catch (e) {
       vite.ssrFixStacktrace(e as Error);
       next(e);

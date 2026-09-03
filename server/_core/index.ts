@@ -46,6 +46,10 @@ async function startServer() {
       createContext,
     })
   );
+  // Never let the SPA HTML fallback masquerade as an API response.
+  app.use("/api/trpc", (_req, res) => {
+    res.status(404).json({ error: "tRPC procedure not found" });
+  });
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
