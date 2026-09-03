@@ -7,20 +7,13 @@ import { createServer as createViteServer } from "vite";
 import viteConfig from "../../vite.config";
 
 export async function setupVite(app: Express, server: Server) {
-  const hmrClientPort = Number(process.env.PORT || 3000);
   const serverOptions = {
     middlewareMode: true,
-    port: hmrClientPort,
-    host: "0.0.0.0",
-    // Express and Vite share the same HTTP server in WebDev. Explicitly
-    // advertise the same public port in every HMR field so the injected Vite
-    // client cannot fall back to Vite's standalone default (5173).
-    hmr: {
-      server,
-      host: "localhost",
-      port: hmrClientPort,
-      clientPort: hmrClientPort,
-    },
+    // WebDev's managed on-change strategy restarts/reloads this process. Its
+    // public proxy does not expose Vite's standalone HMR WebSocket endpoint,
+    // so disabling HMR prevents the injected client from attempting the
+    // invalid localhost:5173 connection and emitting a browser error.
+    hmr: false,
     allowedHosts: true as const,
   };
 
