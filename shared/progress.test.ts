@@ -11,5 +11,6 @@ describe("progress identity", () => {
     expect(rows.map(row => row.dayNumber)).toEqual([1, 2]);
     expect(new Set(rows.map(row => row.dayNumber)).has(1)).toBe(true);
     expect(new Set(rows.map(row => row.devotionalId)).has(1)).toBe(false);
+    expect(rows.find(row => row.dayNumber === 1)?.dayNumber).toBe(1);
   });
 });

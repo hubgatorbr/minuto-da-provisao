@@ -13,7 +13,7 @@ export default function Devotional() {
   const [, params] = useRoute("/devocional/:dayNumber");
   const [, navigate] = useLocation();
   const dayNumber = Math.max(1, Math.min(365, Number(params?.dayNumber ?? 1)));
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const utils = trpc.useUtils();
   const devotionalQuery = trpc.devotional.byDay.useQuery({ dayNumber });
   const stateQuery = trpc.devotional.state.useQuery(undefined, { enabled: isAuthenticated });
@@ -24,16 +24,40 @@ export default function Devotional() {
   const entry = stateQuery.data?.entries.find(item => item.devotionalId === devotionalId)?.content || "";
   const [journal, setJournal] = useState("");
   useEffect(() => setJournal(entry), [entry, devotionalId]);
-  const completionMutation = trpc.devotional.toggleCompleted.useMutation({ onSuccess: () => utils.devotional.state.invalidate() });
+  const completionMutation = trpc.devotional.toggleCompleted.useMutation({
+    onMutate: async ({ completed }) => {
+      await utils.devotional.state.cancel();
+      const previous = utils.devotional.state.getData();
+      utils.devotional.state.setData(undefined, current => {
+        if (!current) return current;
+        const completedIds = completed
+          ? Array.from(new Set([...current.completedIds, devotionalId]))
+          : current.completedIds.filter(id => id !== devotionalId);
+        const completedDays = completed
+          ? Array.from(new Set([...(current.completedDays ?? []), dayNumber]))
+          : (current.completedDays ?? []).filter(day => day !== dayNumber);
+        return { ...current, completedIds, completedDays };
+      });
+      return { previous };
+    },
+    onError: (_error, _input, context) => {
+      if (context?.previous) utils.devotional.state.setData(undefined, context.previous);
+      toast.error("Não foi possível salvar. Faça login novamente e tente outra vez.");
+    },
+    onSuccess: async () => {
+      await utils.devotional.state.invalidate();
+      toast.success(!isComplete ? "Minuto concluído. Mais um dia construindo com propósito." : "Devocional marcado como não concluído.");
+    },
+  });
   const favoriteMutation = trpc.devotional.toggleFavorite.useMutation({ onSuccess: () => utils.devotional.state.invalidate() });
   const journalMutation = trpc.devotional.saveJournal.useMutation({ onSuccess: () => { utils.devotional.state.invalidate(); toast.success("Sua reflexão foi salva no diário."); } });
   const paragraphs = useMemo(() => devotional?.reflection.split("\n\n") ?? [], [devotional?.reflection]);
   const requireLogin = () => { toast.message("Entre para salvar a sua jornada."); startLogin(); };
-  const handleComplete = () => { if (!isAuthenticated) return requireLogin(); completionMutation.mutate({ devotionalId, completed: !isComplete }, { onSuccess: () => toast.success(!isComplete ? "Minuto concluído. Mais um dia construindo com propósito." : "Devocional marcado como não concluído.") }); };
+  const handleComplete = () => { if (!isAuthenticated) return requireLogin(); completionMutation.mutate({ devotionalId, completed: !isComplete }); };
   const handleFavorite = () => { if (!isAuthenticated) return requireLogin(); favoriteMutation.mutate({ devotionalId, favorite: !isFavorite }); };
   const handleJournal = () => { if (!isAuthenticated) return requireLogin(); journalMutation.mutate({ devotionalId, content: journal }); };
 
-  if (devotionalQuery.isLoading) return <AppShell><div className="flex min-h-[70vh] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-[#b38c31]" /></div></AppShell>;
+  if (devotionalQuery.isLoading || authLoading || (isAuthenticated && stateQuery.isLoading)) return <AppShell><div className="flex min-h-[70vh] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-[#b38c31]" /></div></AppShell>;
   if (!devotional) return <AppShell><div className="mx-auto max-w-3xl px-5 py-24 text-center"><BookMarked className="mx-auto h-8 w-8 text-[#b38c31]" /><h1 className="mt-4 font-serif text-3xl">Este devocional não foi encontrado.</h1><Link href="/jornada" className="mt-5 inline-block text-sm font-semibold text-[#315d43]">Voltar para a jornada</Link></div></AppShell>;
 
   return <AppShell><div className="mx-auto max-w-3xl px-4 py-7 sm:px-7 lg:py-12"><div className="mb-7 flex items-center justify-between"><Button variant="ghost" onClick={() => navigate("/")} className="-ml-3 gap-2 text-[#66756c]"><ArrowLeft className="h-4 w-4" /> Hoje</Button><div className="text-right"><p className="text-[10px] font-bold uppercase tracking-[.2em] text-[#a2813c]">Minuto da Provisão</p><p className="mt-0.5 text-xs text-[#78857d]">Dia {dayNumber} de 365</p></div></div>

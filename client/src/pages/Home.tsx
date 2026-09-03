@@ -18,13 +18,12 @@ export default function Home() {
   const devotionalQuery = trpc.devotional.byDay.useQuery({ dayNumber: day });
   const stateQuery = trpc.devotional.state.useQuery(undefined, { enabled: isAuthenticated });
   const devotional = devotionalQuery.data;
-  const completed = stateQuery.data?.completedDays ?? [];
+  const completed = stateQuery.data?.completedDays ?? stateQuery.data?.completedIds ?? [];
   const completedCount = completed.length;
   const currentStreak = streak(completed);
   const progress = Math.round((completedCount / 365) * 100);
   const displayName = user?.name?.split(" ")[0] || "Empreendedor";
-  const dailyId = devotional?.id ?? devotional?.dayNumber ?? day;
-  const isDone = completed.includes(dailyId);
+  const isDone = completed.includes(day);
 
   if (devotionalQuery.isLoading || loading || (isAuthenticated && stateQuery.isLoading)) return <AppShell><div className="flex min-h-[70vh] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-[#b38c31]" /></div></AppShell>;
 
