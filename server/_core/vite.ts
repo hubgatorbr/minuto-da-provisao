@@ -10,10 +10,17 @@ export async function setupVite(app: Express, server: Server) {
   const hmrClientPort = Number(process.env.PORT || 3000);
   const serverOptions = {
     middlewareMode: true,
+    port: hmrClientPort,
+    host: "0.0.0.0",
     // Express and Vite share the same HTTP server in WebDev. Explicitly
-    // advertise that public port so the injected Vite client does not fall
-    // back to Vite's standalone default (5173), which breaks proxied HMR.
-    hmr: { server, clientPort: hmrClientPort },
+    // advertise the same public port in every HMR field so the injected Vite
+    // client cannot fall back to Vite's standalone default (5173).
+    hmr: {
+      server,
+      host: "localhost",
+      port: hmrClientPort,
+      clientPort: hmrClientPort,
+    },
     allowedHosts: true as const,
   };
 
