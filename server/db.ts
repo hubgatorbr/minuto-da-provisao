@@ -102,11 +102,11 @@ export async function getDevotionalByDay(dayNumber: number) {
   return result[0];
 }
 
-export async function getUserState(userId: number): Promise<{ completedIds: number[]; favoriteIds: number[]; entries: any[]; preferences: any }> {
+export async function getUserState(userId: number): Promise<{ completedIds: number[]; completedDays: number[]; favoriteIds: number[]; entries: any[]; preferences: any }> {
   const db = await getDb();
-  if (!db) return { completedIds: [], favoriteIds: [], entries: [], preferences: undefined };
+  if (!db) return { completedIds: [], completedDays: [], favoriteIds: [], entries: [], preferences: undefined };
   const [progress, favoriteRows, entries, preferences] = await Promise.all([
-    db.select().from(userProgress).where(and(eq(userProgress.userId, userId), eq(userProgress.completed, true))),
+    db.select({ devotionalId: userProgress.devotionalId, dayNumber: devotionals.dayNumber }).from(userProgress).innerJoin(devotionals, eq(userProgress.devotionalId, devotionals.id)).where(and(eq(userProgress.userId, userId), eq(userProgress.completed, true))),
     db.select().from(favorites).where(eq(favorites.userId, userId)),
     db.select({
       id: journalEntries.id,
@@ -122,6 +122,7 @@ export async function getUserState(userId: number): Promise<{ completedIds: numb
   ]);
   return {
     completedIds: progress.map(row => row.devotionalId),
+    completedDays: progress.map(row => row.dayNumber),
     favoriteIds: favoriteRows.map(row => row.devotionalId),
     entries,
     preferences: preferences[0],
@@ -130,7 +131,7 @@ export async function getUserState(userId: number): Promise<{ completedIds: numb
 
 export async function toggleCompleted(userId: number, devotionalId: number, completed: boolean) {
   const db = await getDb();
-  if (!db) return;
+  if (!db) throw new Error("Database unavailable while saving devotional progress");
   await db.insert(userProgress).values({
     userId,
     devotionalId,
