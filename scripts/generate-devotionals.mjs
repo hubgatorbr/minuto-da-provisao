@@ -32,17 +32,33 @@ const dayOneReflection = `Antes de começar a cuidar de metas, pessoas, entregas
 const dayOneReflectionExtended = `${dayOneReflection}\n\nEssa entrega também muda a qualidade das suas conversas. Em vez de usar pessoas apenas como recursos para atingir uma meta, você pode ouvi-las como parte da responsabilidade que recebeu. Em vez de esconder fragilidades para parecer inabalável, pode buscar conselho com humildade. Em vez de confundir sucesso com velocidade, pode perguntar se o caminho escolhido ainda honra os valores que deseja deixar como legado. A sua empresa será marcada não apenas pelo que vende, mas pelo modo como trata clientes, parceiros, equipe e família enquanto cresce.\n\nComece este primeiro dia com uma decisão simples: transforme uma preocupação difusa em uma entrega específica e, depois, em uma ação responsável. Talvez seja uma proposta que precisa de revisão, uma conversa com um sócio, um número que precisa ser encarado ou um limite que deve ser comunicado. Ore, planeje e aja. A provisão de Deus não elimina o trabalho diligente; ela sustenta você para que o trabalho não se torne o senhor da sua vida.`;
 
 const intros = [
-  'Há dias em que o empreendedor acorda antes mesmo de sair da cama resolvendo problemas na mente. Um prazo, uma conversa, uma meta ou uma preocupação financeira ocupa todo o espaço. Nessa hora, agir depressa parece mais seguro do que parar para discernir.',
-  'Todo negócio traz situações que não cabem em respostas prontas. A pressão por resultado pode estreitar a visão, fazendo você escolher apenas o que resolve o agora. A fé bíblica não elimina essa pressão, mas oferece um lugar diferente para enfrentá-la.',
-  'O desafio nem sempre é falta de informação. Às vezes, você sabe o que precisa fazer, mas o custo emocional de agir é alto. É justamente aí que propósito, caráter e confiança deixam de ser palavras bonitas e se tornam prática.',
-  'Em uma rotina cheia, é possível confundir movimento com progresso. Você responde mensagens, participa de reuniões e cumpre tarefas, mas permanece distante do que realmente precisa de atenção. A sabedoria convida você a recuperar presença antes de acelerar.'
+  (month, journey, title, focus) => `Hoje, a jornada de ${month.toLowerCase()} coloca ${journey.toLowerCase()} no centro. O tema “${title}” começa com uma pergunta concreta: como ${focus}? Antes de responder à pressão externa, reserve um espaço para perceber o que esta decisão está formando em você.`,
+  (month, journey, title, focus) => `O dia de hoje chega com uma tensão comum a quem empreende: cuidar do que precisa ser feito sem perder a razão pela qual começou. Em ${month.toLowerCase()}, dentro da jornada de ${journey.toLowerCase()}, “${title}” convida você a ${focus}.`,
+  (month, journey, title, focus) => `Nem toda decisão importante se apresenta como uma grande virada. Algumas aparecem em uma conversa, em um limite ou em uma tarefa simples. A reflexão “${title}”, da trilha de ${journey.toLowerCase()}, ajuda você a ${focus} com mais presença.`,
+  (month, journey, title, focus) => `Existe uma diferença entre reagir ao dia e conduzir o dia. Ao entrar no tema “${title}”, observe como a realidade de ${month.toLowerCase()} desafia sua liderança. O exercício de hoje é ${focus}.`,
+  (month, journey, title, focus) => `Seu negócio fala por meio de escolhas pequenas. Nesta etapa de ${journey.toLowerCase()}, “${title}” desloca a atenção do ruído para uma prática: ${focus}. Leia sem pressa e permita que a pergunta encontre uma situação real.`,
+  (month, journey, title, focus) => `Há uma decisão que merece ser vista por mais de um ângulo. O devocional “${title}” não promete eliminar a incerteza; ele oferece um caminho para ${focus} durante a jornada de ${month.toLowerCase()}.`,
+  (month, journey, title, focus) => `Quando a agenda aperta, a direção pode ficar escondida entre urgências. O tema “${title}” recupera uma parte essencial da jornada de ${journey.toLowerCase()}: ${focus}. Comece identificando onde isso já aparece no seu trabalho.`,
+  (month, journey, title, focus) => `A maturidade empreendedora também cresce quando você nomeia o que está acontecendo. Hoje, “${title}” dá linguagem a uma escolha de ${month.toLowerCase()} e propõe uma resposta simples: ${focus}.`,
+  (month, journey, title, focus) => `O que parece apenas uma questão operacional pode revelar um valor profundo. A partir de “${title}”, olhe para sua empresa e pergunte como ${focus}. Essa é a contribuição de hoje para a trilha de ${journey.toLowerCase()}.`,
+  (month, journey, title, focus) => `Há sabedoria em não tratar todos os problemas da mesma forma. “${title}” oferece uma lente específica para o momento de ${month.toLowerCase()} e ajuda você a ${focus} sem abandonar as pessoas envolvidas.`,
+  (month, journey, title, focus) => `Antes de escolher uma resposta, reconheça a pergunta que a situação está fazendo. No devocional “${title}”, essa pergunta se torna prática: ${focus}. Leve-a para uma decisão que esteja diante de você hoje.`,
+  (month, journey, title, focus) => `A jornada de ${journey.toLowerCase()} não acontece apenas em grandes decisões. Ela se comprova na forma como você conduz o próximo passo. “${title}” orienta esse passo ao convidar você a ${focus}.`
 ];
 
 const bridges = [
-  'A passagem indicada para hoje aponta para uma postura de escuta e responsabilidade. Ela não oferece uma fórmula para eliminar riscos; ela reposiciona o coração de quem precisa agir. Em vez de buscar garantias artificiais, você pode procurar discernimento para fazer o bem possível diante da realidade.',
-  'A referência bíblica de hoje lembra que Deus se importa com a direção do coração e com a forma como tratamos pessoas, recursos e compromissos. Isso amplia a conversa: uma decisão saudável não é apenas aquela que melhora um indicador, mas a que permanece coerente quando ninguém está aplaudindo.',
-  'Este texto convida a trocar a ansiedade de controlar tudo pela maturidade de responder bem ao que está diante de você. Planejamento, conselho e trabalho cuidadoso continuam necessários. A diferença está em não transformar o resultado em senhor da sua paz.',
-  'Na jornada empreendedora, fé não é um atalho em torno da realidade. Ela sustenta a coragem de olhar fatos com verdade, reconhecer limites e agir com integridade. Essa combinação oferece firmeza quando o cenário ainda não está definido.'
+  (month, journey, title, reference) => `${reference} apresenta uma direção para quem precisa agir sem fingir que controla todas as variáveis. Em ${month.toLowerCase()}, essa direção conversa com a jornada de ${journey.toLowerCase()}: transformar “${title.toLowerCase()}” em uma prática observável.`,
+  (month, journey, title, reference) => `A passagem de hoje não funciona como um slogan para a empresa. Ela ilumina uma postura. Ao relacionar ${reference} com “${title.toLowerCase()}”, você pode perguntar que tipo de decisão permanece íntegra quando o resultado ainda não apareceu.`,
+  (month, journey, title, reference) => `O texto bíblico de ${reference} oferece um ponto de retorno quando a pressa assume o comando. Ele convida você a tratar “${title.toLowerCase()}” com discernimento, responsabilidade e atenção às pessoas que serão alcançadas pela escolha.`,
+  (month, journey, title, reference) => `Ler ${reference} a partir da realidade do negócio amplia a reflexão. A fé não substitui dados, preparo ou conversa; ela ajuda a ordenar esses recursos enquanto você pratica “${title.toLowerCase()}” em ${month.toLowerCase()}.`,
+  (month, journey, title, reference) => `Existe uma pergunta de caráter por trás de ${reference}: o que suas decisões comunicam quando ninguém está medindo? Ela se torna especialmente concreta no tema “${title.toLowerCase()}”, dentro da jornada de ${journey.toLowerCase()}.`,
+  (month, journey, title, reference) => `A referência de hoje chama atenção para uma liberdade responsável. Você pode reconhecer limites, buscar conselho e ainda assim agir. Esse é o terreno em que “${title.toLowerCase()}” deixa de ser conceito e vira escolha.`,
+  (month, journey, title, reference) => `Em vez de procurar uma garantia artificial, deixe ${reference} orientar a próxima pergunta. O propósito de “${title.toLowerCase()}” não é produzir uma resposta automática, mas melhorar a qualidade da decisão que você está prestes a tomar.`,
+  (month, journey, title, reference) => `A sabedoria de ${reference} alcança também a operação: agenda, caixa, equipe, clientes e limites. Por isso, “${title.toLowerCase()}” merece ser lido como uma prática de liderança, e não apenas como uma ideia inspiradora.`,
+  (month, journey, title, reference) => `O cenário pode mudar, mas a forma de responder pode ser cultivada. Ao aproximar ${reference} da realidade de ${month.toLowerCase()}, você encontra uma maneira mais honesta de viver “${title.toLowerCase()}”.`,
+  (month, journey, title, reference) => `A passagem não elimina o custo de escolher. Ela ajuda a discernir qual custo vale a pena assumir e qual preço oculto deve ser evitado. Essa distinção está no coração de “${title.toLowerCase()}”.`,
+  (month, journey, title, reference) => `Use ${reference} como uma pausa antes da reação. A partir dessa pausa, examine o que “${title.toLowerCase()}” pede de você na empresa, nos relacionamentos e na vida que sustenta o trabalho.`,
+  (month, journey, title, reference) => `A Escritura não trata o empreendedor como alguém separado da própria realidade. ${reference} encontra você no meio da agenda e oferece critérios para praticar “${title.toLowerCase()}” com fidelidade.`
 ];
 
 const applications = [
@@ -63,17 +79,64 @@ function referenceFor(monthIndex, day) {
   return `${month.book} ${chapter}:${verse}`;
 }
 
-function buildReflection(focus, title, reference, index) {
-  const intro = intros[index % intros.length];
-  const bridge = bridges[index % bridges.length];
+const operationalAngles = [
+  (month, journey, title, focus) => `Leve “${title.toLowerCase()}” para uma decisão concreta de ${month.toLowerCase()}. Escolha uma conversa, um número, um prazo ou um processo que precise refletir ${focus}. A prática começa quando você torna essa intenção visível para alguém afetado por ela.`,
+  (month, journey, title, focus) => `Na operação, procure o ponto em que ${focus}. Pode ser uma prioridade da equipe, uma promessa ao cliente ou uma escolha de recursos. Em vez de tentar resolver tudo, defina o próximo movimento que honra “${title.toLowerCase()}”.`,
+  (month, journey, title, focus) => `Pergunte onde a empresa está sendo coerente e onde está apenas repetindo uma frase bonita. Depois, selecione uma ação pequena que aproxime sua agenda de ${focus}. O tema de hoje ganha força quando muda um comportamento observável.`,
+  (month, journey, title, focus) => `Faça um inventário rápido: qual informação falta, quem precisa ser ouvido e qual limite protege a missão? Essas perguntas ajudam a transformar ${focus} em critério para uma decisão, não em uma intenção vaga.`,
+  (month, journey, title, focus) => `Talvez a aplicação esteja em algo que você vem adiando. Nomeie o custo de continuar igual e compare-o com a responsabilidade de ${focus}. Um passo bem escolhido pode valer mais do que uma lista extensa de promessas.`,
+  (month, journey, title, focus) => `Observe os sinais do negócio sem separar resultado de caráter. A forma de cobrar, contratar, priorizar e comunicar também revela se você está praticando ${focus}. Escolha um desses pontos para revisar hoje.`,
+  (month, journey, title, focus) => `A melhor aplicação não precisa ser grandiosa. Pode ser uma pergunta feita antes de aprovar uma despesa, uma prioridade comunicada com clareza ou uma expectativa renegociada. O importante é que ela expresse ${focus}.`,
+  (month, journey, title, focus) => `Converta a reflexão em uma frase de decisão: “neste momento, vou...” Complete-a com uma ação que permita ${focus}. Assim, “${title.toLowerCase()}” deixa de competir com a rotina e passa a orientar a rotina.`,
+  (month, journey, title, focus) => `Considere o impacto de sua escolha sobre clientes, equipe, sócios e família. A pergunta não é apenas se algo funciona, mas se funciona sem abandonar ${focus}. Esse cuidado protege o negócio de soluções que cobram caro depois.`,
+  (month, journey, title, focus) => `Antes de acelerar, procure a evidência que sustenta o próximo passo. Antes de recuar, escute quem carrega a consequência. Essa combinação de prudência e ação é uma forma prática de ${focus}.`,
+  (month, journey, title, focus) => `Registre uma decisão que precisa de revisão e escreva qual princípio você quer ver nela. Se esse princípio for ${focus}, quais dados, conversas e limites precisam entrar na análise?`,
+  (month, journey, title, focus) => `Ao fechar este momento, não carregue apenas uma sensação. Leve um compromisso verificável: uma reunião, uma revisão, uma mensagem ou um limite. Faça dele um sinal de que você escolheu ${focus}.`
+];
+
+const relationshipAngles = [
+  (month, journey, title, focus) => `As pessoas próximas percebem sua direção pelo modo como você responde quando algo sai do plano. Em vez de proteger uma imagem, pratique escuta e explique como ${focus} deve orientar a próxima conversa.`,
+  (month, journey, title, focus) => `Uma empresa não aprende apenas em reuniões; ela aprende nas respostas diárias. Sua equipe precisa ver que “${title.toLowerCase()}” também significa ${focus} quando existe pressão, atraso ou discordância.`,
+  (month, journey, title, focus) => `Considere quem pode ser afetado por uma decisão tomada em silêncio. Compartilhar contexto, admitir dúvida e pedir contribuição são maneiras de construir confiança enquanto você busca ${focus}.`,
+  (month, journey, title, focus) => `Não transforme pessoas em instrumentos para compensar uma falta de clareza. Diga o que está em jogo, ouça o que ainda não aparece no seu diagnóstico e deixe ${focus} organizar a conversa.`,
+  (month, journey, title, focus) => `A liderança amadurece quando a verdade cabe na sala sem humilhar ninguém. Escolha uma conversa em que você possa praticar ${focus} com firmeza, respeito e disposição para ajustar o caminho.`,
+  (month, journey, title, focus) => `Pergunte a alguém confiável como sua postura tem sido percebida. A resposta pode revelar uma distância entre o que você deseja construir e o que as pessoas experimentam quando você tenta ${focus}.`,
+  (month, journey, title, focus) => `Seu ritmo também educa. Se você deseja que a equipe pratique ${focus}, mostre isso na forma como distribui atenção, reconhece esforço e reage a um erro. Cultura nasce de sinais repetidos, não apenas de discursos.`,
+  (month, journey, title, focus) => `Quando uma conversa fica difícil, volte ao propósito da relação. Em seguida, trate o ponto concreto sem fugir da responsabilidade. Essa sequência ajuda “${title.toLowerCase()}” a produzir reconciliação em vez de apenas alívio.`,
+  (month, journey, title, focus) => `Há um pedido de ajuda que talvez você precise fazer ou receber. A humildade de reconhecer limites não diminui sua autoridade; pode criar as condições para que ${focus} aconteça com mais segurança.`,
+  (month, journey, title, focus) => `Observe como clientes e parceiros recebem suas decisões. Clareza, prazo e cuidado são formas de respeito. Revise uma interação recente e procure uma maneira de praticar ${focus} na próxima.`,
+  (month, journey, title, focus) => `Uma escolha coerente pode ser silenciosa, mas não é invisível. Alguém verá como você trata uma falha, uma cobrança ou uma divergência. Permita que esse momento testemunhe ${focus}.`,
+  (month, journey, title, focus) => `Não espere que todos entendam sua intenção sem contexto. Explique o porquê, convide perguntas e sustente o limite necessário. É assim que “${title.toLowerCase()}” se torna uma experiência compartilhada.`
+];
+
+const spiritualAngles = [
+  (month, journey, title, focus) => `Na presença de Deus, você pode separar responsabilidade de controle. Entregue a ansiedade que não pode resolver e assuma o próximo passo que permite ${focus}.`,
+  (month, journey, title, focus) => `A oração não substitui o planejamento; ela devolve o planejamento ao lugar certo. Peça discernimento para praticar ${focus} sem transformar o resultado em medida do seu valor.`,
+  (month, journey, title, focus) => `Talvez a provisão de hoje apareça como sabedoria, uma pessoa disponível, um limite necessário ou coragem para corrigir. Receba esses recursos enquanto escolhe ${focus}.`,
+  (month, journey, title, focus) => `Deus não precisa de uma versão performática de você. Apresente o cenário como ele é, nomeie o medo e pergunte como ${focus} pode ser vivido com fidelidade agora.`,
+  (month, journey, title, focus) => `A fé oferece um horizonte maior que o indicador do dia. Isso não torna os números irrelevantes; impede que eles tenham a última palavra enquanto você pratica ${focus}.`,
+  (month, journey, title, focus) => `Faça uma pausa suficiente para lembrar que sua empresa é parte da vida, não sua identidade inteira. A partir dessa liberdade, escolha uma resposta que expresse ${focus}.`,
+  (month, journey, title, focus) => `Quando o futuro parece fechado, a confiança pode começar com uma pequena obediência. Pergunte qual ação de hoje preserva ${focus} mesmo sem garantia de resultado.`,
+  (month, journey, title, focus) => `Agradeça pelo que já foi colocado em suas mãos: pessoas, competências, tempo, oportunidades e aprendizados. Use esses recursos para caminhar em direção a ${focus}.`,
+  (month, journey, title, focus) => `Não confunda paz com ausência de problema. Paz também pode ser a capacidade de agir sem negar a realidade. Peça essa sobriedade para praticar ${focus}.`,
+  (month, journey, title, focus) => `A dependência de Deus não elimina sua agência. Ela permite trabalhar com diligência, pedir correção e deixar resultados fora do seu alcance. Hoje, isso se traduz em ${focus}.`,
+  (month, journey, title, focus) => `O que você está tentando provar? Coloque essa necessidade diante de Deus e volte à pergunta mais simples: qual escolha honra ${focus} e as pessoas confiadas a você?`,
+  (month, journey, title, focus) => `Termine este minuto com uma entrega específica e uma responsabilidade específica. Confie o que não controla e faça o que cabe a você para ${focus}.`
+];
+
+function buildReflection(focus, title, reference, index, month, journey) {
+  const intro = intros[index % intros.length](month, journey, title, focus);
+  const bridge = bridges[index % bridges.length](month, journey, title, reference);
   const paragraphThree = `O tema de hoje, ${title.toLowerCase()}, pede que você observe a situação com mais honestidade: ${focus}. Essa observação não é uma condenação, mas uma oportunidade de liderança interior. Quando uma decisão nasce apenas do medo, da pressa ou da comparação, ela costuma cobrar um preço oculto mais tarde. Quando nasce de valores claros, conversa franca e disposição para aprender, ela pode produzir fruto mesmo que o caminho não seja simples.`;
-  const paragraphFour = `Leve isso para a operação concreta. Pergunte qual conversa precisa acontecer, qual informação ainda falta, qual limite deve ser comunicado e qual atitude pode restaurar confiança. Você não precisa resolver o trimestre inteiro hoje. Pode, porém, escolher uma resposta fiel para este dia. A maturidade empresarial cresce assim: menos promessas grandiosas, mais decisões coerentes repetidas com perseverança.`;
-  const paragraphFive = `Também vale observar como esse assunto aparece nos seus relacionamentos. A maneira como você responde a uma pressão ensina algo à equipe, aos clientes, aos sócios e à sua família. Talvez a mudança mais importante não seja uma grande reestruturação, mas uma postura diferente: ouvir antes de reagir, admitir o que ainda não sabe, organizar o que está confuso e cumprir o que foi combinado. Integridade ganha forma em gestos assim, especialmente quando eles parecem pequenos demais para entrar em um relatório.`;
-  const paragraphSix = `Por isso, não trate este minuto como uma interrupção improdutiva. Ele pode ser o espaço em que sua mente volta ao lugar certo. Ao trazer a situação para a presença de Deus, você não fica menos responsável pelo negócio; você aprende a carregar responsabilidade sem carregar a ilusão de autossuficiência. Essa liberdade permite agir com firmeza, pedir ajuda quando necessário e permanecer disponível para correção. É assim que uma empresa pode crescer sem perder a alma.`;
-  const paragraphSeven = `Há uma aplicação muito prática para esse princípio: reduza a distância entre aquilo que você afirma valorizar e aquilo que a sua agenda, seus processos e suas decisões realmente comunicam. Se você deseja construir confiança, reveja como responde a atrasos, erros e pedidos de ajuda. Se deseja uma empresa mais saudável, escolha hoje uma ação que torne o caminho de outra pessoa mais claro. O propósito não se prova apenas por uma declaração de visão; ele aparece na forma como você trata uma dúvida, uma despesa, um prazo e uma pessoa.`;
-  const paragraphEight = `Você também pode resistir à tentação de medir este dia apenas pelo resultado imediato. Algumas sementes de caráter e cultura levam tempo para ser percebidas, mas sustentam o negócio quando a pressão aumenta. Continue aprendendo, corrigindo e servindo. A provisão de Deus pode se revelar em sabedoria, em uma boa conversa, em um limite necessário, em uma pessoa que oferece conselho ou na coragem de fazer o que é certo. Receba esses recursos com gratidão e use-os com responsabilidade.`;
-  const close = `Ao terminar esta leitura, apresente a Deus a área em que este tema toca você. ${reference} não é um enfeite para a sua agenda; é um convite para que fé, Bíblia, negócios e vida deixem de andar em compartimentos separados. Permita que a sua próxima ação expresse o tipo de pessoa e de empresa que você deseja formar.`;
-  return [intro, bridge, paragraphThree, paragraphFour, paragraphFive, paragraphSix, paragraphSeven, paragraphEight, close].join('\n\n');
+  const paragraphFour = operationalAngles[index % operationalAngles.length](month, journey, title, focus);
+  const paragraphFive = relationshipAngles[(index + 3) % relationshipAngles.length](month, journey, title, focus);
+  const paragraphSix = spiritualAngles[(index + 5) % spiritualAngles.length](month, journey, title, focus);
+  const paragraphSeven = `A decisão de hoje pode deixar um rastro na cultura. Registre o que você escolheu, por que escolheu e qual sinal mostrará que ${focus}. Essa prática dá continuidade ao tema “${title.toLowerCase()}” depois que este minuto terminar.`;
+  const paragraphEight = `Ao revisar o dia, procure uma evidência de aprendizado, uma pessoa cuidada e um próximo passo possível. Não exija que tudo esteja resolvido; verifique se você avançou com coerência em direção a ${focus}.`;
+  const paragraphNine = `Não transforme esta reflexão em mais uma cobrança. Use-a como um instrumento de discernimento. Escreva duas colunas: de um lado, o que está sob sua responsabilidade; do outro, o que precisa ser entregue, negociado ou aguardado. Depois, escolha uma atitude que proteja pessoas e recursos enquanto você pratica ${focus}. Essa pequena organização pode revelar que a decisão não precisa ser perfeita para ser fiel.`;
+  const paragraphTen = `Se a resposta ainda não estiver clara, volte ao princípio do dia e converse com alguém que possa fazer boas perguntas. Às vezes, a provisão chega como um olhar externo, uma correção oportuna ou a coragem de admitir que o plano precisa mudar. O importante é não usar a incerteza como desculpa para permanecer imóvel nem a pressa como justificativa para ignorar ${focus}. Mesmo uma decisão provisória pode ser tomada com transparência, registrada para revisão e comunicada a quem precisa se preparar para seus efeitos.`;
+  const close = `Ao terminar esta leitura, apresente a Deus a área em que este tema toca você. ${reference} encontra a realidade de ${month.toLowerCase()} e convida você a integrar fé, Bíblia, negócios e vida. Permita que sua próxima ação torne “${title.toLowerCase()}” visível.`;
+  return [intro, bridge, paragraphThree, paragraphFour, paragraphFive, paragraphSix, paragraphSeven, paragraphEight, paragraphNine, paragraphTen, close].join('\n\n');
 }
 
 let dayNumber = 1;
@@ -92,7 +155,7 @@ for (let monthIndex = 0; monthIndex < months.length; monthIndex += 1) {
       bibleReference: reference,
       bibleTranslation: 'NVI',
       bibleText: null,
-      reflection: dayNumber === 1 ? dayOneReflectionExtended : buildReflection(focus, title, reference, index),
+      reflection: dayNumber === 1 ? dayOneReflectionExtended : buildReflection(focus, title, reference, index, month.name, month.journey),
       practicalActions: [
         applications[index % applications.length],
         applications[(index + 2) % applications.length],
