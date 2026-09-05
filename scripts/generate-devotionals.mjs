@@ -1,5 +1,14 @@
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { v5Overrides } from './v5-overrides.mjs';
+
+const v45JanuaryOverrides = Object.fromEntries(
+  readdirSync(new URL('./v45-january/', import.meta.url))
+    .filter(file => file.endsWith('.json'))
+    .map(file => {
+      const value = JSON.parse(readFileSync(new URL(`./v45-january/${file}`, import.meta.url), 'utf8'));
+      return [Number(value.dayNumber), value];
+    }),
+);
 
 const months = [
   { name: 'Janeiro', journey: 'Propósito', count: 31, book: 'Provérbios', chapters: 31, focuses: [
@@ -211,7 +220,9 @@ for (let monthIndex = 0; monthIndex < months.length; monthIndex += 1) {
   month.focuses.forEach(([title, focus], localIndex) => {
     const index = dayNumber - 1;
     const reference = referenceFor(monthIndex, localIndex + 1);
+    const v45 = v45JanuaryOverrides[dayNumber];
     const v5 = v5Overrides[dayNumber];
+    const editorialOverride = v45 ?? v5;
     devotionals.push({
       dayNumber,
       month: month.name,
@@ -220,12 +231,12 @@ for (let monthIndex = 0; monthIndex < months.length; monthIndex += 1) {
       theme: month.journey,
       bibleReference: reference,
       bibleTranslation: 'ALMEIDA_PUBLIC_DOMAIN',
-      catalogRevision: v5 ? 'editorial-v5' : catalogRevision,
+      catalogRevision: v45 ? 'editorial-v4.5' : v5 ? 'editorial-v5' : catalogRevision,
       bibleText: null,
-      reflection: v5?.reflection ?? (dayNumber === 1 ? dayOneReflectionExtended : buildReflection(focus, title, reference, index, month.name, month.journey)),
-      practicalActions: v5?.practicalActions ?? buildActions(focus, title, reference, index),
-      dailyQuestion: v5?.dailyQuestion ?? `Em qual situação concreta você precisa praticar ${title.toLowerCase()} hoje?`,
-      prayer: v5?.prayer ?? `Senhor, traz clareza e humildade para que eu pratique ${title.toLowerCase()} com fidelidade. Ajuda-me a agir com sabedoria, a cuidar das pessoas confiadas a mim e a entregar a Ti aquilo que não posso controlar. Amém.`,
+      reflection: editorialOverride?.reflection ?? (dayNumber === 1 ? dayOneReflectionExtended : buildReflection(focus, title, reference, index, month.name, month.journey)),
+      practicalActions: editorialOverride?.practicalActions ?? buildActions(focus, title, reference, index),
+      dailyQuestion: editorialOverride?.dailyQuestion ?? `Em qual situação concreta você precisa praticar ${title.toLowerCase()} hoje?`,
+      prayer: editorialOverride?.prayer ?? `Senhor, traz clareza e humildade para que eu pratique ${title.toLowerCase()} com fidelidade. Ajuda-me a agir com sabedoria, a cuidar das pessoas confiadas a mim e a entregar a Ti aquilo que não posso controlar. Amém.`,
       published: true
     });
     dayNumber += 1;

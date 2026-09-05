@@ -23,7 +23,7 @@ describe("devotional catalogue", () => {
     expect(new Set(actions).size).toBe(actions.length);
   });
 
-  it("establishes the simplified v5 tone on the first seven days", () => {
+  it("establishes the v4.5 tone across January", () => {
     const first = devotionals[0];
     expect(first).toMatchObject({
       dayNumber: 1,
@@ -31,16 +31,16 @@ describe("devotional catalogue", () => {
       bibleReference: "Provérbios 16:3",
       theme: "Propósito",
     });
-    expect(first.reflection.trim().split(/\s+/).length).toBeGreaterThanOrEqual(170);
-    expect(first.reflection.trim().split(/\s+/).length).toBeLessThanOrEqual(260);
-    expect(devotionals.slice(0, 7).every(item => item.catalogRevision === "editorial-v5")).toBe(true);
+    expect(first.reflection.trim().split(/\s+/).length).toBeGreaterThanOrEqual(350);
+    expect(first.reflection.trim().split(/\s+/).length).toBeLessThanOrEqual(430);
+    expect(devotionals.slice(0, 31).every(item => item.catalogRevision === "editorial-v4.5")).toBe(true);
     expect(first.practicalActions).toHaveLength(3);
     expect(first.prayer.length).toBeGreaterThan(40);
   });
 
   it("keeps every reflection within a five-minute editorial reading range", () => {
     const wordCounts = devotionals.map(item => item.reflection.trim().split(/\s+/).length);
-    expect(Math.min(...wordCounts)).toBeGreaterThanOrEqual(170);
+    expect(Math.min(...wordCounts)).toBeGreaterThanOrEqual(350);
     expect(Math.max(...wordCounts)).toBeLessThanOrEqual(800);
   });
 });
