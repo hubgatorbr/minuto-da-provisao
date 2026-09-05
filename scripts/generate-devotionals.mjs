@@ -25,7 +25,9 @@ const months = [
     ['Influência começa em casa', 'perceber como seu caráter fala antes da sua posição'], ['Serviço que multiplica', 'usar capacidade para abrir espaço para outras pessoas crescerem'], ['O tipo de impacto que importa', 'definir sucesso também pelo bem que sua empresa gera'], ['Liderar para além de si', 'construir estruturas que funcionem sem centralidade pessoal'], ['Generosidade estratégica', 'direcionar recursos e tempo com responsabilidade'], ['A reputação que você planta', 'proteger confiança em cada decisão pequena'], ['O legado das palavras', 'usar comunicação para formar e não apenas persuadir'], ['Multiplicar oportunidades', 'criar caminhos para talentos que precisam de uma chance'], ['Influência e poder', 'usar autoridade para servir e não controlar'], ['O cliente como parte do legado', 'tratar cada entrega como declaração de valores'], ['Uma marca que faz bem', 'construir posicionamento coerente com impacto real'], ['Responsabilidade social com verdade', 'evitar ações performáticas e buscar contribuição consistente'], ['O exemplo que a equipe repete', 'perceber quais comportamentos sua liderança normaliza'], ['Legado é repetição de escolhas', 'valorizar coerência ao longo do tempo'], ['A empresa como plataforma', 'usar o negócio para promover dignidade e boas práticas'], ['O valor de compartilhar conhecimento', 'ensinar o que você aprendeu sem medo de perder espaço'], ['Influência que escuta', 'considerar pessoas afetadas antes de anunciar uma decisão'], ['Generosidade com limites', 'servir de forma que também seja sustentável'], ['Cuidar da próxima geração', 'mentorear quem está começando com atenção concreta'], ['O que fica quando você sai', 'avaliar se valores estão incorporados à cultura'], ['A coragem de fazer o certo', 'preservar a integridade quando ninguém exigiria'], ['Multiplicação sem exploração', 'crescer sem usar pessoas como meio descartável'], ['O legado de uma reparação', 'corrigir caminhos para deixar relações mais saudáveis'], ['Serviço em tempos de reconhecimento', 'não deixar elogios deslocarem o centro da missão'], ['Uma visão que inclui pessoas', 'planejar crescimento pensando em quem será impactado'], ['Impacto mensurável', 'acompanhar evidências de benefício além da receita'], ['A generosidade de indicar', 'usar rede e influência para conectar pessoas'], ['A empresa que honra compromissos', 'transformar promessa em cultura operacional'], ['O nome que você deixa', 'cuidar de reputação com verdade e humildade'], ['Encerrar o mês olhando para frente', 'escolher uma prática concreta de legado'] ] },
   { name: 'Dezembro', journey: 'Gratidão e Novos Ciclos', count: 31, book: 'Isaías', chapters: 66, focuses: [
     ['Gratidão pelos caminhos percorridos', 'reconhecer o que foi sustentado mesmo em meses difíceis'], ['Resultados que contam histórias', 'olhar números e pessoas para compreender o ano com verdade'], ['O aprendizado das decisões', 'revisar escolhas sem se prender a arrependimentos estéreis'], ['Celebrar com sobriedade', 'alegrar-se por conquistas sem transformá-las em identidade'], ['O que precisa ser encerrado', 'dar fim responsável a ciclos que perderam sentido'], ['O que merece continuar', 'proteger práticas que sustentaram saúde e missão'], ['Agradecer à equipe', 'reconhecer contribuição específica de quem caminhou junto'], ['O cliente que ensinou', 'honrar aprendizados recebidos de quem você serviu'], ['Revisar valores em ação', 'avaliar se a cultura expressou o que a empresa diz crer'], ['O descanso de fim de ciclo', 'abrir espaço real para recuperar presença e clareza'], ['Planejar sem ansiedade', 'preparar o futuro sem tentar possuí-lo'], ['Uma visão para o próximo ano', 'formular direção que una propósito e responsabilidade'], ['O orçamento do novo ciclo', 'organizar recursos para servir à estratégia'], ['A agenda que deseja viver', 'desenhar semanas coerentes com suas prioridades'], ['A renovação de hábitos', 'escolher uma prática simples para começar diferente'], ['Perdão pelo que não foi', 'liberar culpa por expectativas que não se cumpriram'], ['A coragem de recomeçar', 'receber um novo ciclo sem negar a história anterior'], ['Guardar as lições', 'registrar aprendizados para que não se percam na pressa'], ['A provisão lembrada', 'anotar formas de cuidado que você reconhece ao olhar para trás'], ['A esperança como disciplina', 'cultivar expectativa ativa em vez de otimismo vazio'], ['Pessoas para agradecer', 'procurar quem foi importante para sua caminhada'], ['O legado de um ano', 'identificar o que sua empresa formou em pessoas e relações'], ['Futuro com mãos abertas', 'planejar sem transformar plano em ídolo'], ['A decisão de simplificar', 'deixar espaço para o que realmente importa no próximo ano'], ['Celebração que inclui', 'compartilhar alegria com quem contribuiu e precisa de cuidado'], ['Novos riscos, antigos valores', 'entrar em novos desafios com princípios preservados'], ['O primeiro passo de janeiro', 'definir uma ação possível antes que o entusiasmo passe'], ['Entregar o que vem', 'reconhecer limites e confiar o futuro a Deus'], ['Uma palavra para o próximo ciclo', 'escolher uma orientação que guie suas decisões'], ['O dia de hoje como presente', 'estar presente antes de correr para o próximo ano'], ['Encerrar com gratidão e propósito', 'concluir a jornada reconhecendo Deus no centro da vida e do trabalho'] ] }
-];
+  ];
+
+const catalogRevision = 'editorial-v4';
 
 const dayOneReflection = `Antes de começar a cuidar de metas, pessoas, entregas, vendas e decisões, existe uma pergunta que merece espaço: a quem pertencem os planos que você está tentando fazer acontecer? Empreender costuma colocar essa pergunta sob tensão. Há responsabilidades concretas. O cliente aguarda uma resposta, a equipe precisa de direção, o caixa demanda atenção e o mercado muda sem pedir licença. Em meio a isso, é fácil transformar planejamento em tentativa de controle absoluto.\n\nProvérbios 16:3 convida você a entregar ao Senhor tudo o que faz. A referência não diminui a importância de organizar o negócio; ela muda o lugar de onde você organiza. Entregar não é abandonar a estratégia, esperar passivamente ou chamar de fé aquilo que é falta de preparo. É reconhecer que seus projetos, competências, recursos e resultados não são um território isolado da presença de Deus. O plano continua existindo, mas deixa de ser o seu centro de segurança.\n\nIsso toca diretamente a ambição. Ambição pode ser energia para construir, servir melhor, criar empregos, resolver problemas e amadurecer capacidades. Ela se torna perigosa quando exige que você mantenha uma imagem, ultrapasse limites éticos ou sacrifique pessoas para provar que é capaz. Quando os planos são apresentados a Deus, você pode perguntar com mais honestidade: este crescimento serve a uma missão ou apenas alimenta uma necessidade de validação? Esta oportunidade combina com nossos valores? Este ritmo preserva minha família, minha saúde e minha integridade?\n\nTalvez você esteja carregando ansiedade porque imagina que precisa prever todas as variáveis antes de agir. Há sabedoria em estudar cenários, pedir conselho e preparar recursos. Mas nenhuma planilha promete domínio sobre o futuro. A entrega devolve você ao lugar da responsabilidade possível: fazer hoje o que é correto, comunicar-se com verdade, cuidar das pessoas confiadas a você e avançar no próximo passo que já está claro. Deus não pede que você controle os resultados para então merecer paz; Ele chama você a caminhar com fidelidade no meio da incerteza.\n\nHoje, não comece tentando proteger o seu negócio de todas as ameaças. Comece reconhecendo que sua empresa não é a medida da sua identidade, que os resultados não são a fonte final do seu valor e que você não precisa empreender sozinho. Coloque seus planos diante de Deus, nomeie os medos que têm dirigido suas decisões e escolha uma ação coerente com o propósito que deseja construir. Entregar é uma prática diária: planejar com diligência, trabalhar com excelência e manter as mãos abertas para receber direção, correção e paz.`;
 
@@ -61,14 +63,27 @@ const bridges = [
   (month, journey, title, reference) => `A Escritura não trata o empreendedor como alguém separado da própria realidade. ${reference} encontra você no meio da agenda e oferece critérios para praticar “${title.toLowerCase()}” com fidelidade.`
 ];
 
-const applications = [
-  'Faça uma pausa de dez minutos antes da primeira decisão importante e escreva o que realmente está em jogo.',
-  'Converse com uma pessoa madura sobre o ponto cego que esta situação pode revelar.',
-  'Escolha uma ação pequena, responsável e alinhada aos seus valores para executar ainda hoje.',
-  'Revise uma expectativa que está produzindo ansiedade e transforme-a em um próximo passo concreto.',
-  'Registre uma forma de provisão, aprendizado ou cuidado que você já percebeu nesta semana.',
-  'Comunique com clareza uma prioridade para alguém afetado pela sua decisão.'
+const actionTemplates = [
+  (title, focus) => `Escreva em uma frase como “${title}” deve aparecer em uma decisão de hoje; depois, compare essa frase com a forma de ${focus}.`,
+  (title, focus) => `Escolha uma conversa que envolva “${title.toLowerCase()}” e entre nela com uma pergunta preparada sobre como ${focus}.`,
+  (title, focus) => `Reserve quinze minutos para observar onde sua agenda favorece ou dificulta ${focus}; ajuste um compromisso antes do fim do dia.`,
+  (title, focus) => `Liste duas evidências de que você está praticando “${title.toLowerCase()}” e uma mudança necessária para ${focus}.`,
+  (title, focus) => `Identifique o custo de continuar adiando “${title.toLowerCase()}” e transforme ${focus} em um próximo passo com prazo definido.`,
+  (title, focus) => `Revise uma decisão recente à luz de “${title.toLowerCase()}” e anote qual detalhe mudaria para ${focus}.`,
+  (title, focus) => `Peça a uma pessoa da equipe um exemplo concreto de como ${focus} poderia melhorar o trabalho dela nesta semana.`,
+  (title, focus) => `Antes de aprovar a próxima despesa ou prioridade, pergunte se ela realmente ajuda a ${focus}; registre a resposta.`,
+  (title, focus) => `Escolha um indicador ou sinal humano que revele se ${focus} está acontecendo e defina quando você o revisará.`,
+  (title, focus) => `Comunique uma prioridade ligada a “${title.toLowerCase()}” e explique por que ${focus} importa para as pessoas envolvidas.`,
+  (title, focus) => `Faça uma pausa de dez minutos para separar o que está sob seu controle do que precisa ser entregue, mantendo o compromisso de ${focus}.`,
+  (title, focus) => `Registre uma pequena decisão que proteja o futuro do negócio e demonstre, na prática, que você escolheu ${focus}.`
 ];
+
+function buildActions(focus, title, reference, index) {
+  const first = actionTemplates[index % actionTemplates.length](title, focus);
+  const second = actionTemplates[(index + 4) % actionTemplates.length](title, focus);
+  const third = `Antes do fim do dia, releia ${reference} e escreva qual decisão concreta tornará “${title.toLowerCase()}” visível sem perder de vista que você precisa ${focus}.`;
+  return [first, second, third];
+}
 
 function referenceFor(monthIndex, day) {
   const month = months[monthIndex];
@@ -124,6 +139,54 @@ const spiritualAngles = [
   (month, journey, title, focus) => `Termine este minuto com uma entrega específica e uma responsabilidade específica. Confie o que não controla e faça o que cabe a você para ${focus}.`
 ];
 
+const caseRoles = [
+  'uma fundadora que coordena uma equipe pequena', 'um sócio responsável pelo caixa', 'uma profissional autônoma em fase de expansão',
+  'um gestor que assumiu uma operação familiar', 'uma líder comercial diante de uma meta ousada', 'um prestador de serviço com agenda cheia',
+  'uma pessoa que está contratando pela primeira vez', 'um empreendedor que atende clientes recorrentes', 'uma diretora que precisa formar sucessores',
+  'um especialista que transformou conhecimento em produto', 'uma equipe que trabalha de forma distribuída', 'uma dona de loja em período de mudança',
+  'um consultor que precisa proteger sua agenda', 'uma pessoa que voltou a empreender depois de uma pausa', 'um gestor de projeto sob prazo apertado',
+  'uma líder que equilibra negócio e família', 'um profissional que está renegociando dívidas', 'um casal que administra uma empresa juntos',
+  'uma equipe criativa buscando previsibilidade', 'um empreendedor local que conhece seus clientes pelo nome', 'uma pessoa que recebeu uma oportunidade inesperada',
+  'um negócio que cresceu mais rápido que seus processos', 'uma líder que precisa comunicar uma mudança', 'um fundador preparando a próxima fase'
+];
+
+const caseSituations = [
+  'uma proposta que parece lucrativa, mas exige pressa', 'um cliente importante pedindo uma exceção', 'uma falha que chegou ao conhecimento da equipe',
+  'um relatório com números que não combinam com a sensação do mês', 'uma reunião em que ninguém quer dar a notícia difícil', 'uma tarefa urgente disputando espaço com o trabalho essencial',
+  'um pedido de desconto feito sem conhecer os custos', 'uma contratação que pode aliviar a sobrecarga', 'uma parceria que traz visibilidade e dependência',
+  'uma ideia boa demais para ser executada ao mesmo tempo', 'uma conversa familiar atravessando o expediente', 'um processo que só funciona quando uma pessoa está presente',
+  'uma meta antiga que deixou de servir à missão', 'uma decisão tomada para evitar desapontamento', 'um atraso que exige comunicação imediata',
+  'uma oportunidade que não cabe na capacidade atual', 'um erro pequeno que pode virar precedente', 'uma despesa recorrente que ninguém revisou',
+  'uma equipe esperando direção para agir', 'um período de silêncio nas vendas', 'uma promessa feita antes de consultar a operação',
+  'uma mudança de rota exigida por evidências', 'um limite que precisa ser comunicado sem agressividade', 'uma entrega que pede acabamento antes de velocidade'
+];
+
+const caseArtifacts = [
+  'um quadro simples de prioridades', 'uma planilha de fluxo de caixa', 'um roteiro de conversa', 'um calendário compartilhado',
+  'um contrato que precisa ser relido', 'um indicador de retenção', 'uma lista de riscos', 'um processo escrito em uma página',
+  'um orçamento semanal', 'um mapa de responsabilidades', 'uma mensagem de alinhamento', 'um registro de aprendizados',
+  'uma reunião de quinze minutos', 'um limite de horário', 'um pedido de feedback', 'uma política de atendimento',
+  'um cenário conservador', 'uma reserva financeira', 'uma pauta de revisão', 'um compromisso público',
+  'uma pergunta feita ao cliente', 'um plano de sucessão', 'um arquivo de decisões', 'um espaço de silêncio'
+];
+
+const caseSignals = [
+  'a qualidade da conversa', 'a margem que permanece depois da entrega', 'a energia da equipe no fim do dia', 'a clareza do próximo passo',
+  'o prazo que foi realmente combinado', 'a pessoa que deixou de pedir ajuda', 'o cliente que voltou sem ser pressionado', 'a diferença entre atividade e avanço',
+  'o tipo de comportamento que recebe recompensa', 'a tranquilidade para dizer não', 'o aprendizado que foi documentado', 'a confiança depois do erro',
+  'o tempo preservado para pensar', 'a coerência entre discurso e agenda', 'a capacidade de cumprir o prometido', 'o cuidado com quem carrega a consequência',
+  'a liberdade para corrigir cedo', 'a sobriedade diante dos números', 'a disposição para compartilhar crédito', 'a paz que não depende do resultado imediato',
+  'a saúde dos relacionamentos', 'a utilidade concreta do produto', 'a responsabilidade assumida sem terceirização', 'a gratidão pelo recurso disponível'
+];
+
+function buildCaseParagraph(index, month, journey, title, focus) {
+  const role = caseRoles[(index * 5) % caseRoles.length];
+  const situation = caseSituations[(index * 7 + 3) % caseSituations.length];
+  const artifact = caseArtifacts[(index * 11 + 5) % caseArtifacts.length];
+  const signal = caseSignals[(index * 13 + 7) % caseSignals.length];
+  return `Imagine ${role}, na jornada de ${journey.toLowerCase()} de ${month.toLowerCase()}, diante de ${situation}. O primeiro impulso pode ser proteger o resultado, agradar alguém ou ganhar velocidade. Em vez disso, use ${artifact} para tornar visível o que “${title.toLowerCase()}” pede: ${focus}. Observe ${signal} como evidência de que a escolha está produzindo o tipo de negócio que você deseja construir. O caso não precisa ser idêntico ao seu para revelar uma pergunta útil; basta permitir que a realidade interrompa respostas automáticas.`;
+}
+
 function buildReflection(focus, title, reference, index, month, journey) {
   const intro = intros[index % intros.length](month, journey, title, focus);
   const bridge = bridges[index % bridges.length](month, journey, title, reference);
@@ -136,7 +199,8 @@ function buildReflection(focus, title, reference, index, month, journey) {
   const paragraphNine = `Não transforme esta reflexão em mais uma cobrança. Use-a como um instrumento de discernimento. Escreva duas colunas: de um lado, o que está sob sua responsabilidade; do outro, o que precisa ser entregue, negociado ou aguardado. Depois, escolha uma atitude que proteja pessoas e recursos enquanto você pratica ${focus}. Essa pequena organização pode revelar que a decisão não precisa ser perfeita para ser fiel.`;
   const paragraphTen = `Se a resposta ainda não estiver clara, volte ao princípio do dia e converse com alguém que possa fazer boas perguntas. Às vezes, a provisão chega como um olhar externo, uma correção oportuna ou a coragem de admitir que o plano precisa mudar. O importante é não usar a incerteza como desculpa para permanecer imóvel nem a pressa como justificativa para ignorar ${focus}. Mesmo uma decisão provisória pode ser tomada com transparência, registrada para revisão e comunicada a quem precisa se preparar para seus efeitos.`;
   const close = `Ao terminar esta leitura, apresente a Deus a área em que este tema toca você. ${reference} encontra a realidade de ${month.toLowerCase()} e convida você a integrar fé, Bíblia, negócios e vida. Permita que sua próxima ação torne “${title.toLowerCase()}” visível.`;
-  return [intro, bridge, paragraphThree, paragraphFour, paragraphFive, paragraphSix, paragraphSeven, paragraphEight, paragraphNine, paragraphTen, close].join('\n\n');
+  const caseParagraph = buildCaseParagraph(index, month, journey, title, focus);
+  return [intro, bridge, paragraphThree, caseParagraph, paragraphFour, paragraphFive, paragraphSix, paragraphSeven, paragraphEight, paragraphNine, paragraphTen, close].join('\n\n');
 }
 
 let dayNumber = 1;
@@ -153,14 +217,11 @@ for (let monthIndex = 0; monthIndex < months.length; monthIndex += 1) {
       title,
       theme: month.journey,
       bibleReference: reference,
-      bibleTranslation: 'NVI',
+      bibleTranslation: 'ALMEIDA_PUBLIC_DOMAIN',
+      catalogRevision,
       bibleText: null,
       reflection: dayNumber === 1 ? dayOneReflectionExtended : buildReflection(focus, title, reference, index, month.name, month.journey),
-      practicalActions: [
-        applications[index % applications.length],
-        applications[(index + 2) % applications.length],
-        `Antes do fim do dia, releia ${reference} e anote como ${focus} pode orientar sua próxima decisão.`
-      ],
+      practicalActions: buildActions(focus, title, reference, index),
       dailyQuestion: `Em qual situação concreta você precisa praticar ${title.toLowerCase()} hoje?`,
       prayer: `Senhor, traz clareza e humildade para que eu pratique ${title.toLowerCase()} com fidelidade. Ajuda-me a agir com sabedoria, a cuidar das pessoas confiadas a mim e a entregar a Ti aquilo que não posso controlar. Amém.`,
       published: true
@@ -171,6 +232,6 @@ for (let monthIndex = 0; monthIndex < months.length; monthIndex += 1) {
 
 if (devotionals.length !== 365) throw new Error(`Expected 365 devotionals, got ${devotionals.length}`);
 mkdirSync(new URL('../shared/', import.meta.url), { recursive: true });
-const content = `// Generated editorial catalogue. Keep NVI quotations outside this data until an official licensed source is connected.\n\nexport type DevotionalSeed = {\n  dayNumber: number;\n  month: string;\n  journey: string;\n  title: string;\n  theme: string;\n  bibleReference: string;\n  bibleTranslation: 'NVI';\n  bibleText: null;\n  reflection: string;\n  practicalActions: string[];\n  dailyQuestion: string;\n  prayer: string;\n  published: boolean;\n};\n\nexport const devotionals: DevotionalSeed[] = ${JSON.stringify(devotionals, null, 2)};\n\nexport const monthlyJourneys = ${JSON.stringify(months.map(({ name, journey, count }) => ({ name, journey, count })), null, 2)} as const;\n`;
+const content = `// Generated editorial catalogue. Translation metadata is resolved through shared/bible-translations.ts.\n\nexport type DevotionalSeed = {\n  dayNumber: number;\n  month: string;\n  journey: string;\n  title: string;\n  theme: string;\n  bibleReference: string;\n  bibleTranslation: string;\n  catalogRevision: string;\n  bibleText: null;\n  reflection: string;\n  practicalActions: string[];\n  dailyQuestion: string;\n  prayer: string;\n  published: boolean;\n};\n\nexport const devotionals: DevotionalSeed[] = ${JSON.stringify(devotionals, null, 2)};\n\nexport const monthlyJourneys = ${JSON.stringify(months.map(({ name, journey, count }) => ({ name, journey, count })), null, 2)} as const;\n`;
 writeFileSync(new URL('../shared/devotionals.ts', import.meta.url), content);
 console.log(`Generated ${devotionals.length} devotionals.`);

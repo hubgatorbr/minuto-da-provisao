@@ -1,0 +1,1 @@
+ALTER TABLE `devotionals` ADD `catalogRevision` varchar(32) DEFAULT 'editorial-v3' NOT NULL;

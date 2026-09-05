@@ -62,12 +62,35 @@ export async function ensureDevotionalCatalogue() {
   seedPromise = (async () => {
     const db = await getDb();
     if (!db) return;
-    const existing = await db.select({ id: devotionals.id }).from(devotionals).limit(1);
-    if (existing.length > 0) return;
-    await db.insert(devotionals).values(devotionalSeeds.map(seed => ({
-      ...seed,
-      practicalActions: seed.practicalActions,
-    })));
+    const existing = await db.select({ dayNumber: devotionals.dayNumber, bibleTranslation: devotionals.bibleTranslation, catalogRevision: devotionals.catalogRevision }).from(devotionals);
+    const catalogIsCurrent = existing.length === devotionalSeeds.length
+      && existing.every(row => row.catalogRevision === devotionalSeeds[0]?.catalogRevision);
+    if (catalogIsCurrent) return;
+
+    // The translation identifier doubles as a lightweight catalogue revision.
+    // This migrates the regenerated editorial once without overwriting later admin edits.
+    for (const seed of devotionalSeeds) {
+      const row = existing.find(item => item.dayNumber === seed.dayNumber);
+      if (row) {
+        await db.update(devotionals).set({
+          month: seed.month,
+          journey: seed.journey,
+          title: seed.title,
+          theme: seed.theme,
+          bibleReference: seed.bibleReference,
+          bibleTranslation: seed.bibleTranslation,
+          catalogRevision: seed.catalogRevision,
+          bibleText: seed.bibleText,
+          reflection: seed.reflection,
+          practicalActions: seed.practicalActions,
+          dailyQuestion: seed.dailyQuestion,
+          prayer: seed.prayer,
+          published: seed.published,
+        }).where(eq(devotionals.dayNumber, seed.dayNumber));
+      } else {
+        await db.insert(devotionals).values(seed);
+      }
+    }
   })().catch(error => {
     seedPromise = null;
     throw error;

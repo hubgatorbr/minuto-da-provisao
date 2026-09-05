@@ -28,7 +28,7 @@ const devotionalInput = z.object({
   title: z.string().min(3).max(180),
   theme: z.string().min(2).max(100),
   bibleReference: z.string().min(3).max(120),
-  bibleTranslation: z.string().min(2).max(32).default("NVI"),
+  bibleTranslation: z.string().min(2).max(64).default("ALMEIDA_PUBLIC_DOMAIN"),
   bibleText: z.string().nullable().optional(),
   reflection: z.string().min(120),
   practicalActions: z.array(z.string().min(3)).min(3).max(5),

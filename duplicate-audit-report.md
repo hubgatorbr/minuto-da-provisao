@@ -2,13 +2,14 @@
 
 **Data da revisão:** 5 de setembro de 2026
 **Catálogo revisado:** `shared/devotionals.ts`
-**Fonte corrigida:** `scripts/generate-devotionals.mjs`
+**Fonte corrigida:** `scripts/generate-devotionals.mjs` · **Revisão:** `editorial-v4`
+**Tradução de referência:** `ALMEIDA_PUBLIC_DOMAIN` — Almeida, domínio público
 
 ## Conclusão executiva
 
 A biblioteca foi regenerada com uma nova arquitetura editorial. Não há duplicatas integrais entre os 365 devocionais. Também não há mais parágrafos de reflexão repetidos entre entradas.
 
-A revisão substituiu os cinco blocos literais que apareciam em quase toda a biblioteca por variações contextuais. As variações consideram mês, jornada, título, foco, referência bíblica e posição editorial do texto. As quatro introduções cíclicas também foram substituídas por doze famílias de abertura, doze abordagens operacionais, doze abordagens relacionais e doze abordagens espirituais.
+A revisão substituiu os cinco blocos literais que apareciam em quase toda a biblioteca por variações contextuais. As variações consideram mês, jornada, título, foco, referência bíblica e posição editorial do texto. A versão v4 acrescenta um caso empresarial contextual — papel, situação, artefato de decisão e sinal de saúde — a cada entrada. As quatro introduções cíclicas também foram substituídas por doze famílias de abertura, doze abordagens operacionais, doze abordagens relacionais e doze abordagens espirituais.
 
 Os pares tematicamente próximos passaram a receber linguagem contextual própria. A auditoria lexical ainda identifica pares semanticamente relacionados, como “Planejar sem ansiedade” e “Futuro com mãos abertas”. Isso é esperado em uma biblioteca de formação empresarial. A métrica não deve ser interpretada como cópia quando não há parágrafos idênticos e quando os focos, títulos, perguntas e aplicações são diferentes.
 
@@ -25,13 +26,13 @@ Os pares tematicamente próximos passaram a receber linguagem contextual própri
 | Grupos de orações duplicadas | 0 | 0 |
 | Grupos de parágrafos repetidos | 13 | 0 |
 | Devocionais com repetição interna de parágrafo | 0 | 0 |
-| Parágrafos distintos nas reflexões | 748 | 4.011 |
+| Parágrafos distintos nas reflexões | 748 | 4.375 |
 
 ## Alterações realizadas
 
 ### Blocos operacionais
 
-Os parágrafos fixos sobre operação, relacionamentos, presença, valores e provisão foram removidos. No lugar deles, cada devocional recebe uma abordagem específica. As novas abordagens alternam perguntas sobre decisões, processos, clientes, equipe, limites, conversas difíceis, cultura e próximos passos.
+Os parágrafos fixos sobre operação, relacionamentos, presença, valores e provisão foram removidos. No lugar deles, cada devocional recebe uma abordagem específica e um caso empresarial contextual. As novas abordagens alternam perguntas sobre decisões, processos, clientes, equipe, limites, conversas difíceis, cultura e próximos passos.
 
 ### Introduções dos ciclos
 

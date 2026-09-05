@@ -1,0 +1,1 @@
+ALTER TABLE `devotionals` MODIFY COLUMN `bibleTranslation` varchar(64) NOT NULL DEFAULT 'ALMEIDA_PUBLIC_DOMAIN';

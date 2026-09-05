@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { devotionals, monthlyJourneys } from "./devotionals";
+import { DEFAULT_BIBLE_TRANSLATION_ID } from "./bible-translations";
 
 describe("devotional catalogue", () => {
   it("contains a complete and ordered 365-day journey", () => {
@@ -9,11 +10,17 @@ describe("devotional catalogue", () => {
     expect(monthlyJourneys.reduce((total, month) => total + month.count, 0)).toBe(365);
   });
 
-  it("preserves editorial uniqueness and NVI references without storing protected full texts", () => {
+  it("preserves editorial uniqueness and public-domain translation metadata", () => {
     expect(new Set(devotionals.map(item => item.title)).size).toBe(365);
     expect(new Set(devotionals.map(item => item.dailyQuestion)).size).toBe(365);
     expect(new Set(devotionals.map(item => item.bibleReference)).size).toBe(365);
-    expect(devotionals.every(item => item.bibleTranslation === "NVI" && item.bibleText === null)).toBe(true);
+    expect(devotionals.every(item => item.bibleTranslation === DEFAULT_BIBLE_TRANSLATION_ID && item.bibleText === null)).toBe(true);
+  });
+
+  it("uses a distinct practical action set for every devotional", () => {
+    const actions = devotionals.flatMap(item => item.practicalActions);
+    expect(actions).toHaveLength(1095);
+    expect(new Set(actions).size).toBe(actions.length);
   });
 
   it("establishes the requested tone and depth on day one", () => {

@@ -1,0 +1,1 @@
+ALTER TABLE `devotionals` MODIFY COLUMN `catalogRevision` varchar(32) NOT NULL DEFAULT 'editorial-v4';
