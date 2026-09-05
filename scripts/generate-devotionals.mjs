@@ -1,4 +1,5 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
+import { v5Overrides } from './v5-overrides.mjs';
 
 const months = [
   { name: 'Janeiro', journey: 'Propósito', count: 31, book: 'Provérbios', chapters: 31, focuses: [
@@ -210,6 +211,7 @@ for (let monthIndex = 0; monthIndex < months.length; monthIndex += 1) {
   month.focuses.forEach(([title, focus], localIndex) => {
     const index = dayNumber - 1;
     const reference = referenceFor(monthIndex, localIndex + 1);
+    const v5 = v5Overrides[dayNumber];
     devotionals.push({
       dayNumber,
       month: month.name,
@@ -218,12 +220,12 @@ for (let monthIndex = 0; monthIndex < months.length; monthIndex += 1) {
       theme: month.journey,
       bibleReference: reference,
       bibleTranslation: 'ALMEIDA_PUBLIC_DOMAIN',
-      catalogRevision,
+      catalogRevision: v5 ? 'editorial-v5' : catalogRevision,
       bibleText: null,
-      reflection: dayNumber === 1 ? dayOneReflectionExtended : buildReflection(focus, title, reference, index, month.name, month.journey),
-      practicalActions: buildActions(focus, title, reference, index),
-      dailyQuestion: `Em qual situação concreta você precisa praticar ${title.toLowerCase()} hoje?`,
-      prayer: `Senhor, traz clareza e humildade para que eu pratique ${title.toLowerCase()} com fidelidade. Ajuda-me a agir com sabedoria, a cuidar das pessoas confiadas a mim e a entregar a Ti aquilo que não posso controlar. Amém.`,
+      reflection: v5?.reflection ?? (dayNumber === 1 ? dayOneReflectionExtended : buildReflection(focus, title, reference, index, month.name, month.journey)),
+      practicalActions: v5?.practicalActions ?? buildActions(focus, title, reference, index),
+      dailyQuestion: v5?.dailyQuestion ?? `Em qual situação concreta você precisa praticar ${title.toLowerCase()} hoje?`,
+      prayer: v5?.prayer ?? `Senhor, traz clareza e humildade para que eu pratique ${title.toLowerCase()} com fidelidade. Ajuda-me a agir com sabedoria, a cuidar das pessoas confiadas a mim e a entregar a Ti aquilo que não posso controlar. Amém.`,
       published: true
     });
     dayNumber += 1;

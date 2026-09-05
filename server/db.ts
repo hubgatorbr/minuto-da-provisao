@@ -64,7 +64,7 @@ export async function ensureDevotionalCatalogue() {
     if (!db) return;
     const existing = await db.select({ dayNumber: devotionals.dayNumber, bibleTranslation: devotionals.bibleTranslation, catalogRevision: devotionals.catalogRevision }).from(devotionals);
     const catalogIsCurrent = existing.length === devotionalSeeds.length
-      && existing.every(row => row.catalogRevision === devotionalSeeds[0]?.catalogRevision);
+      && devotionalSeeds.every(seed => existing.some(row => row.dayNumber === seed.dayNumber && row.catalogRevision === seed.catalogRevision));
     if (catalogIsCurrent) return;
 
     // The translation identifier doubles as a lightweight catalogue revision.
@@ -72,6 +72,7 @@ export async function ensureDevotionalCatalogue() {
     for (const seed of devotionalSeeds) {
       const row = existing.find(item => item.dayNumber === seed.dayNumber);
       if (row) {
+        if (row.catalogRevision === seed.catalogRevision) continue;
         await db.update(devotionals).set({
           month: seed.month,
           journey: seed.journey,
