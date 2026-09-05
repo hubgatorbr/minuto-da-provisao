@@ -1,6 +1,6 @@
 # Checklist editorial e técnico
 
-## Concluído
+## Concluído nesta entrega
 
 - [x] Regenerar os 365 devocionais a partir do gerador determinístico.
 - [x] Criar três ações práticas diferentes para cada devocional, totalizando 1.095 ações únicas.
@@ -13,9 +13,8 @@
 - [x] Atualizar Home, Jornada e leitura do devocional para etiquetas dinâmicas de tradução.
 - [x] Executar `pnpm check`, `pnpm test`, `pnpm build` e `git diff --check` com sucesso.
 - [x] Acionar o endpoint de produção e confirmar no banco a revisão v4 e a tradução pública.
+- [x] Registrar as fontes consultadas e a ressalva jurisdicional da tradução pública.
 
-## Pendências conscientes
+## Backlog registrado, fora do escopo desta entrega
 
-- [ ] Conectar futuramente o texto integral dos versículos a uma fonte bíblica pública versionada, caso o produto passe a exibi-lo. Atualmente o catálogo guarda apenas referência e identificador de tradução.
-- [ ] Revisar juridicamente a distribuição no território de comercialização escolhido, pois domínio público pode depender da jurisdição e da edição textual utilizada.
-- [ ] Gerar uma nova rodada de áudios para os dias 8 a 365, caso o produto queira narração integral de toda a biblioteca.
+Os itens abaixo ficam documentados como evolução futura, sem bloquear esta entrega: conectar o texto integral dos versículos a uma fonte pública versionada após revisão jurídica específica para cada território de comercialização; e gerar narração integral dos dias 8 a 365, além dos sete áudios já publicados.

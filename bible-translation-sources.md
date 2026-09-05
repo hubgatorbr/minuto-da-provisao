@@ -8,3 +8,5 @@ A tradução selecionada para o catálogo é identificada internamente como `ALM
   - README do repositório lista “João Ferreira de Almeida” em português com licença “Public Domain”.
 
 O aplicativo armazena o identificador da tradução, e não o texto bíblico integral. A troca futura deve ser feita no registro `shared/bible-translations.ts` e nos seeds, preservando as referências e as reflexões.
+
+**Ressalva jurisdicional:** a indicação de domínio público precisa ser confirmada para cada território de comercialização e para a edição textual efetivamente distribuída. O Project Gutenberg declara expressamente domínio público nos Estados Unidos; isso não substitui uma análise jurídica no Brasil ou em outros países. Esta entrega não constitui parecer jurídico e não conclui essa validação territorial.
