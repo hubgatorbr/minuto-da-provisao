@@ -22,7 +22,7 @@ export default function Devotional() {
   const bibleTranslation = getBibleTranslation(devotional?.bibleTranslation);
   const devotionalId = devotional?.id ?? devotional?.dayNumber ?? dayNumber;
   const generatedAudioUrl = devotional?.dayNumber ? {
-    1: "/manus-storage/devotional-001_51524056.wav",
+    1: "/manus-storage/devotional-001-natural_994b91a5.wav",
     2: "/manus-storage/devotional-002_cd6d36b3.wav",
     3: "/manus-storage/devotional-003_1a7fae2f.wav",
     4: "/manus-storage/devotional-004_9ec9c5aa.wav",
