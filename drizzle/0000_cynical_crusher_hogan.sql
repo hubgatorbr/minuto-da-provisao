@@ -1,0 +1,2 @@
+ALTER TABLE `devotionals` MODIFY COLUMN `catalogRevision` varchar(32) NOT NULL DEFAULT 'editorial-v3';--> statement-breakpoint
+ALTER TABLE `users` MODIFY COLUMN `role` varchar(16) NOT NULL DEFAULT 'user';
