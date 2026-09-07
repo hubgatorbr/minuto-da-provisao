@@ -42,12 +42,7 @@ export function getSessionCookieOptions(
   return {
     httpOnly: true,
     path: "/",
-    // The session cookie is used by the same published origin after OAuth.
-    // Lax survives the top-level OAuth redirect and avoids third-party-cookie
-    // blocking that can make a refresh look like a logout.
-    sameSite: "lax",
-    // Production traffic is HTTPS behind the managed proxy. In local
-    // development, keep the cookie usable over http://localhost.
-    secure: process.env.NODE_ENV === "production" ? true : isSecureRequest(req),
+    sameSite: "none",
+    secure: isSecureRequest(req),
   };
 }

@@ -1,41 +1,5 @@
 {
   "version": "7",
   "dialect": "mysql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "5",
-      "when": 1788389559335,
-      "tag": "0000_chilly_masked_marvel",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1788389898473,
-      "tag": "0001_white_namorita",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1788618185244,
-      "tag": "0002_mighty_spyke",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1788618580007,
-      "tag": "0003_quick_harrier",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "5",
-      "when": 1788618602446,
-      "tag": "0004_illegal_lightspeed",
-      "breakpoints": true
-    }
-  ]
+  "entries": []
 }
