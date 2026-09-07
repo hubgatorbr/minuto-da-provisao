@@ -31,6 +31,8 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
+  // TLS terminates at the managed proxy before requests reach Express.
+  app.set("trust proxy", 1);
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
@@ -44,6 +46,10 @@ async function startServer() {
       createContext,
     })
   );
+  // Never let the SPA HTML fallback masquerade as an API response.
+  app.use("/api/trpc", (_req, res) => {
+    res.status(404).json({ error: "tRPC procedure not found" });
+  });
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);

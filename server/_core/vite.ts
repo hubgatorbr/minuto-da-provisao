@@ -9,7 +9,11 @@ import viteConfig from "../../vite.config";
 export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
     middlewareMode: true,
-    hmr: { server },
+    // WebDev's managed on-change strategy restarts/reloads this process. Its
+    // public proxy does not expose Vite's standalone HMR WebSocket endpoint,
+    // so disabling HMR prevents the injected client from attempting the
+    // invalid localhost:5173 connection and emitting a browser error.
+    hmr: false,
     allowedHosts: true as const,
   };
 
@@ -39,7 +43,19 @@ export async function setupVite(app: Express, server: Server) {
         `src="/src/main.tsx?v=${nanoid()}"`
       );
       const page = await vite.transformIndexHtml(url, template);
-      res.status(200).set({ "Content-Type": "text/html" }).end(page);
+      // Middleware mode may inject /@vite/client in more than one attribute
+      // ordering. WebDev's managed proxy does not expose Vite's HMR socket,
+      // so remove every injected client variant before sending the page.
+      const pageWithoutHmrClient = page
+        .replace(/<script[^>]*src=["']\/@vite\/client[^>]*><\/script>\s*/gi, "")
+        .replace(/<link[^>]*href=["']\/@vite\/client[^>]*>\s*/gi, "");
+      res
+        .status(200)
+        .set({
+          "Content-Type": "text/html",
+          "Cache-Control": "no-store, no-cache, must-revalidate",
+        })
+        .end(pageWithoutHmrClient);
     } catch (e) {
       vite.ssrFixStacktrace(e as Error);
       next(e);

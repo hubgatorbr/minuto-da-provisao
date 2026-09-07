@@ -1,18 +1,20 @@
-import { and, desc, eq, like } from "drizzle-orm";
+import { and, asc, desc, eq, like, or, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
+  Devotional,
   devotionals,
   favorites,
   InsertUser,
   journalEntries,
-  users,
   userPreferences,
   userProgress,
+  users,
 } from "../drizzle/schema";
-import { devotionals as editorialDevotionals } from "../shared/devotionals";
+import { devotionals as devotionalSeeds } from "../shared/devotionals";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
+let seedPromise: Promise<void> | null = null;
 
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
@@ -30,23 +32,14 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   if (!user.openId) throw new Error("User openId is required for upsert");
   const db = await getDb();
   if (!db) return;
-
-  const values: InsertUser = { openId: user.openId };
-  const updateSet: Record<string, unknown> = {};
-  const textFields = ["name", "email", "loginMethod"] as const;
-  for (const field of textFields) {
+  const values: InsertUser = { openId: user.openId, lastSignedIn: new Date() };
+  const updateSet: Record<string, unknown> = { lastSignedIn: new Date() };
+  (["name", "email", "loginMethod"] as const).forEach(field => {
     if (user[field] !== undefined) {
       values[field] = user[field] ?? null;
       updateSet[field] = user[field] ?? null;
     }
-  }
-  if (user.lastSignedIn !== undefined) {
-    values.lastSignedIn = user.lastSignedIn;
-    updateSet.lastSignedIn = user.lastSignedIn;
-  } else {
-    values.lastSignedIn = new Date();
-    updateSet.lastSignedIn = values.lastSignedIn;
-  }
+  });
   if (user.role !== undefined) {
     values.role = user.role;
     updateSet.role = user.role;
@@ -64,82 +57,112 @@ export async function getUserByOpenId(openId: string) {
   return result[0];
 }
 
-type PublicDevotional = typeof editorialDevotionals[number] & { id: number };
+export async function ensureDevotionalCatalogue() {
+  if (seedPromise) return seedPromise;
+  seedPromise = (async () => {
+    const db = await getDb();
+    if (!db) return;
+    const existing = await db.select({ dayNumber: devotionals.dayNumber, bibleTranslation: devotionals.bibleTranslation, catalogRevision: devotionals.catalogRevision }).from(devotionals);
+    const catalogIsCurrent = existing.length === devotionalSeeds.length
+      && devotionalSeeds.every(seed => existing.some(row => row.dayNumber === seed.dayNumber && row.catalogRevision === seed.catalogRevision));
+    if (catalogIsCurrent) return;
 
-type UserState = {
-  completedIds: number[];
-  completedDays: number[];
-  favoriteIds: number[];
-  entries: Array<{
-    id: number;
-    devotionalId: number;
-    content: string;
-    updatedAt: Date;
-    dayNumber: number;
-    title: string;
-    theme: string;
-  }>;
-  preferences: typeof userPreferences.$inferSelect | null;
-};
-
-function editorialFallback(search?: string): PublicDevotional[] {
-  const needle = search?.trim().toLowerCase();
-  return editorialDevotionals
-    .filter(item => !needle || [item.title, item.theme, item.journey, item.bibleReference, item.reflection].join(" ").toLowerCase().includes(needle))
-    .map((item, index) => ({ ...item, id: index + 1 }));
+    // The translation identifier doubles as a lightweight catalogue revision.
+    // This migrates the regenerated editorial once without overwriting later admin edits.
+    for (const seed of devotionalSeeds) {
+      const row = existing.find(item => item.dayNumber === seed.dayNumber);
+      if (row) {
+        if (row.catalogRevision === seed.catalogRevision) continue;
+        await db.update(devotionals).set({
+          month: seed.month,
+          journey: seed.journey,
+          title: seed.title,
+          theme: seed.theme,
+          bibleReference: seed.bibleReference,
+          bibleTranslation: seed.bibleTranslation,
+          catalogRevision: seed.catalogRevision,
+          bibleText: seed.bibleText,
+          reflection: seed.reflection,
+          practicalActions: seed.practicalActions,
+          dailyQuestion: seed.dailyQuestion,
+          prayer: seed.prayer,
+          published: seed.published,
+        }).where(eq(devotionals.dayNumber, seed.dayNumber));
+      } else {
+        await db.insert(devotionals).values(seed);
+      }
+    }
+  })().catch(error => {
+    seedPromise = null;
+    throw error;
+  });
+  return seedPromise;
 }
 
 export async function listDevotionals(search?: string) {
   const db = await getDb();
-  if (!db) return editorialFallback(search);
-  try {
-    const rows = search?.trim()
-      ? await db.select().from(devotionals).where(and(eq(devotionals.published, true), like(devotionals.title, `%${search.trim()}%`))).orderBy(devotionals.dayNumber)
-      : await db.select().from(devotionals).where(eq(devotionals.published, true)).orderBy(devotionals.dayNumber);
-    return rows.length ? rows : editorialFallback(search);
-  } catch (error) {
-    console.warn("[Database] Falling back to the editorial devotional catalogue:", error instanceof Error ? error.message : error);
-    return editorialFallback(search);
-  }
+  if (!db) return devotionalSeeds as unknown as Devotional[];
+  await ensureDevotionalCatalogue();
+  const base = db.select().from(devotionals).where(eq(devotionals.published, true));
+  if (!search?.trim()) return base.orderBy(asc(devotionals.dayNumber));
+  const term = `%${search.trim()}%`;
+  return db.select().from(devotionals).where(and(
+    eq(devotionals.published, true),
+    or(
+      like(devotionals.title, term),
+      like(devotionals.theme, term),
+      like(devotionals.journey, term),
+      like(devotionals.bibleReference, term),
+      like(devotionals.reflection, term)
+    )
+  )).orderBy(asc(devotionals.dayNumber));
 }
 
 export async function getDevotionalByDay(dayNumber: number) {
   const db = await getDb();
-  if (!db) return editorialFallback().find(item => item.dayNumber === dayNumber);
-  try {
-    const rows = await db.select().from(devotionals).where(and(eq(devotionals.dayNumber, dayNumber), eq(devotionals.published, true))).limit(1);
-    return rows[0] ?? editorialFallback().find(item => item.dayNumber === dayNumber);
-  } catch (error) {
-    console.warn("[Database] Falling back to the editorial devotional catalogue:", error instanceof Error ? error.message : error);
-    return editorialFallback().find(item => item.dayNumber === dayNumber);
-  }
+  if (!db) return devotionalSeeds.find(item => item.dayNumber === dayNumber) as unknown as Devotional | undefined;
+  await ensureDevotionalCatalogue();
+  const result = await db.select().from(devotionals).where(and(eq(devotionals.dayNumber, dayNumber), eq(devotionals.published, true))).limit(1);
+  return result[0];
 }
 
-export async function getUserState(userId: number): Promise<UserState> {
+export async function getUserState(userId: number): Promise<{ completedIds: number[]; completedDays: number[]; favoriteIds: number[]; entries: any[]; preferences: any }> {
   const db = await getDb();
-  if (!db) return { completedIds: [], completedDays: [], favoriteIds: [], entries: [], preferences: null };
-
-  const [progressRows, favoriteRows, entryRows, preferenceRows] = await Promise.all([
-    db.select({ devotionalId: userProgress.devotionalId, completed: userProgress.completed }).from(userProgress).where(eq(userProgress.userId, userId)),
-    db.select({ devotionalId: favorites.devotionalId }).from(favorites).where(eq(favorites.userId, userId)),
-    db.select({ id: journalEntries.id, devotionalId: journalEntries.devotionalId, content: journalEntries.content, updatedAt: journalEntries.updatedAt, dayNumber: devotionals.dayNumber, title: devotionals.title, theme: devotionals.theme }).from(journalEntries).innerJoin(devotionals, eq(journalEntries.devotionalId, devotionals.id)).where(eq(journalEntries.userId, userId)).orderBy(desc(journalEntries.updatedAt)),
+  if (!db) return { completedIds: [], completedDays: [], favoriteIds: [], entries: [], preferences: undefined };
+  const [progress, favoriteRows, entries, preferences] = await Promise.all([
+    db.select({ devotionalId: userProgress.devotionalId, dayNumber: devotionals.dayNumber }).from(userProgress).innerJoin(devotionals, eq(userProgress.devotionalId, devotionals.id)).where(and(eq(userProgress.userId, userId), eq(userProgress.completed, true))),
+    db.select().from(favorites).where(eq(favorites.userId, userId)),
+    db.select({
+      id: journalEntries.id,
+      devotionalId: journalEntries.devotionalId,
+      content: journalEntries.content,
+      createdAt: journalEntries.createdAt,
+      updatedAt: journalEntries.updatedAt,
+      dayNumber: devotionals.dayNumber,
+      title: devotionals.title,
+      theme: devotionals.theme,
+    }).from(journalEntries).innerJoin(devotionals, eq(journalEntries.devotionalId, devotionals.id)).where(eq(journalEntries.userId, userId)).orderBy(desc(journalEntries.updatedAt)),
     db.select().from(userPreferences).where(eq(userPreferences.userId, userId)).limit(1),
   ]);
-  const completed = progressRows.filter(row => row.completed);
   return {
-    completedIds: completed.map(row => row.devotionalId),
-    completedDays: completed.map(row => row.devotionalId),
+    completedIds: progress.map(row => row.devotionalId),
+    completedDays: progress.map(row => row.dayNumber),
     favoriteIds: favoriteRows.map(row => row.devotionalId),
-    entries: entryRows,
-    preferences: preferenceRows[0] ?? null,
+    entries,
+    preferences: preferences[0],
   };
 }
 
 export async function toggleCompleted(userId: number, devotionalId: number, completed: boolean) {
   const db = await getDb();
-  if (!db) return;
-  const now = new Date();
-  await db.insert(userProgress).values({ userId, devotionalId, completed, startedAt: now, completedAt: completed ? now : null }).onDuplicateKeyUpdate({ set: { completed, completedAt: completed ? now : null } });
+  if (!db) throw new Error("Database unavailable while saving devotional progress");
+  await db.insert(userProgress).values({
+    userId,
+    devotionalId,
+    completed,
+    startedAt: new Date(),
+    completedAt: completed ? new Date() : null,
+  }).onDuplicateKeyUpdate({ set: { completed, completedAt: completed ? new Date() : null } });
 }
 
 export async function toggleFavorite(userId: number, devotionalId: number, favorite: boolean) {
@@ -155,25 +178,37 @@ export async function toggleFavorite(userId: number, devotionalId: number, favor
 export async function saveJournalEntry(userId: number, devotionalId: number, content: string) {
   const db = await getDb();
   if (!db) return;
-  await db.insert(journalEntries).values({ userId, devotionalId, content }).onDuplicateKeyUpdate({ set: { content, updatedAt: new Date() } });
+  if (!content.trim()) {
+    await db.delete(journalEntries).where(and(eq(journalEntries.userId, userId), eq(journalEntries.devotionalId, devotionalId)));
+    return;
+  }
+  await db.insert(journalEntries).values({ userId, devotionalId, content: content.trim() }).onDuplicateKeyUpdate({ set: { content: content.trim(), updatedAt: new Date() } });
 }
 
-export async function updatePreferences(userId: number, input: { goal?: string; mainChallenge?: string; interestArea?: string; notificationTime?: string; notificationsEnabled?: boolean; preferredTheme?: string }) {
+export async function updatePreferences(userId: number, data: { goal?: string; mainChallenge?: string; interestArea?: string; notificationTime?: string; notificationsEnabled?: boolean; preferredTheme?: string }) {
   const db = await getDb();
   if (!db) return;
-  const values = { userId, ...input };
-  await db.insert(userPreferences).values(values).onDuplicateKeyUpdate({ set: input });
+  await db.insert(userPreferences).values({ userId, ...data }).onDuplicateKeyUpdate({ set: { ...data, updatedAt: new Date() } });
 }
 
 export async function getAdminStats() {
   const db = await getDb();
-  if (!db) return { users: 0, activeUsers: 0, completions: 0, completionRate: 0 };
-  const [userRows, activeRows, completionRows, devotionalRows] = await Promise.all([
-    db.select({ id: users.id }).from(users),
-    db.select({ id: users.id }).from(users).where(eq(users.role, "user")),
-    db.select({ id: userProgress.id }).from(userProgress).where(eq(userProgress.completed, true)),
-    db.select({ id: devotionals.id }).from(devotionals).where(eq(devotionals.published, true)),
-  ]);
-  const denominator = Math.max(1, userRows.length * Math.max(1, devotionalRows.length));
-  return { users: userRows.length, activeUsers: activeRows.length, completions: completionRows.length, completionRate: Math.round((completionRows.length / denominator) * 100) };
+  if (!db) return { users: 0, activeUsers: 0, completions: 0, completionRate: 0, topDevotionals: [] };
+  await ensureDevotionalCatalogue();
+  const [userCount] = await db.select({ value: sql<number>`count(*)` }).from(users);
+  const [activeCount] = await db.select({ value: sql<number>`count(distinct ${userProgress.userId})` }).from(userProgress).where(eq(userProgress.completed, true));
+  const [completionCount] = await db.select({ value: sql<number>`count(*)` }).from(userProgress).where(eq(userProgress.completed, true));
+  const topDevotionals = await db.select({
+    id: devotionals.id,
+    dayNumber: devotionals.dayNumber,
+    title: devotionals.title,
+    count: sql<number>`count(${userProgress.id})`,
+  }).from(devotionals).leftJoin(userProgress, and(eq(userProgress.devotionalId, devotionals.id), eq(userProgress.completed, true))).groupBy(devotionals.id).orderBy(desc(sql`count(${userProgress.id})`)).limit(5);
+  return {
+    users: Number(userCount?.value ?? 0),
+    activeUsers: Number(activeCount?.value ?? 0),
+    completions: Number(completionCount?.value ?? 0),
+    completionRate: Number(userCount?.value ?? 0) ? Math.round((Number(completionCount?.value ?? 0) / (Number(userCount?.value ?? 0) * 365)) * 100) : 0,
+    topDevotionals,
+  };
 }
