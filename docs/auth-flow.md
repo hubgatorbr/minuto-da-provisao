@@ -4,7 +4,7 @@
 
 O repositório contém uma única aplicação full-stack. A landing pública está em `/`, enquanto a experiência autenticada começa em `/app`. A landing não possui banco, cookies, tokens ou sistema de usuários próprio; seus CTAs apontam para a rota `/login` da aplicação por meio de `getAppUrl()`.
 
-A rota `/login` reutiliza `startLogin()` e o Manus OAuth já configurado. O callback existente em `/api/oauth/callback` continua sendo a única implementação OAuth: valida o nonce, troca o código, consulta o usuário, executa `upsertUser()` por `openId` e cria o cookie de sessão do servidor. O callback redireciona para `/app` após o login. O `redirectUri` é construído no cliente com `window.location.origin`, e nenhum callback OAuth adicional foi criado.
+A rota `/login` exibe duas opções explícitas: **Criar minha conta** e **Entrar com Google**. Ambas reutilizam `startLogin()` e o Manus OAuth já configurado; no primeiro acesso o servidor cria o usuário via `upsertUser()`, e nos acessos seguintes o mesmo `openId` entra na conta existente. O callback existente em `/api/oauth/callback` continua sendo a única implementação OAuth: valida o nonce, troca o código, consulta o usuário e cria o cookie de sessão do servidor. O callback redireciona para `/app` após o login. O `redirectUri` é construído no cliente com `window.location.origin`, e nenhum callback OAuth adicional foi criado.
 
 ## Rotas
 
