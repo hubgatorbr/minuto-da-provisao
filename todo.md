@@ -50,3 +50,4 @@ Os itens abaixo ficam documentados como evolução futura, sem bloquear esta ent
 - [x] Confirmar 7 links comerciais no desktop e o CTA mobile com destino único para a aplicação publicada.
 - [x] Confirmar navegação ponta a ponta até o dashboard publicado, 12 testes, tipagem e build.
 - [x] Confirmar Lighthouse 99/100 no desktop e 77/100 no mobile em performance, com 100/100 em acessibilidade, boas práticas e SEO.
+- [x] Centralizar os CTAs na URL estável do Manus Space, que recebe automaticamente a versão publicada mais recente.
