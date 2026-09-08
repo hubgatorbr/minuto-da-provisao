@@ -1,8 +1,5 @@
-import { startLogin } from "@/const";
-import { Button } from "@/components/ui/button";
 import { useTheme } from "@/contexts/ThemeContext";
-import { COOKIE_NAME } from "@shared/const";
-import { getLandingCtaAction, getLandingRevealDelay } from "@shared/landing";
+import { getLandingRevealDelay, PUBLISHED_APP_URL } from "@shared/landing";
 import {
   ArrowRight,
   BookOpen,
@@ -32,7 +29,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import "./landing.css";
 
 const navItems = [
@@ -153,9 +150,6 @@ function MiniScreen({ type }: { type: "devotional" | "journal" | "progress" | "a
 export default function Landing() {
   const { theme, toggleTheme } = useTheme();
   const [mobileMenu, setMobileMenu] = useState(false);
-  const [authState, setAuthState] = useState<"loading" | "guest" | "authenticated">("loading");
-  const isAuthenticated = authState === "authenticated";
-  const loading = authState === "loading";
 
   useLayoutEffect(() => {
     const root = document.querySelector<HTMLElement>(".landing");
@@ -240,32 +234,6 @@ export default function Landing() {
     };
   }, []);
 
-  useEffect(() => {
-    const controller = new AbortController();
-    const headers: Record<string, string> = {};
-    try {
-      const isPreview = window.location.hostname.endsWith(".manus.computer");
-      const raw = sessionStorage.getItem("manus-cookie") || (isPreview ? localStorage.getItem("manus-cookie") : null);
-      const prefix = `${COOKIE_NAME}=`;
-      const pair = raw?.split(";").find(value => value.trim().startsWith(prefix));
-      const token = pair?.trim().slice(prefix.length);
-      if (token) headers.Authorization = `Bearer ${token}`;
-    } catch {
-      // Cookie authentication remains available when storage is restricted.
-    }
-    fetch("/api/auth/status", { credentials: "include", headers, signal: controller.signal })
-      .then(response => response.json())
-      .then(data => setAuthState(data.authenticated ? "authenticated" : "guest"))
-      .catch(error => { if (error.name !== "AbortError") setAuthState("guest"); });
-    return () => controller.abort();
-  }, []);
-
-  const handleCta = () => {
-    const action = getLandingCtaAction(isAuthenticated, loading);
-    if (action === "dashboard") window.location.assign("/dashboard");
-    if (action === "login") startLogin();
-  };
-
   const closeMenu = () => setMobileMenu(false);
 
   return (
@@ -281,12 +249,12 @@ export default function Landing() {
             <button type="button" className="theme-toggle" onClick={toggleTheme} aria-label="Alternar tema">
               {theme === "dark" ? <Sun /> : <Moon />}
             </button>
-            <button type="button" className="landing-login" onClick={handleCta}>{isAuthenticated ? "Meu painel" : "Entrar"}</button>
-            <Button className="landing-button landing-button--small" onClick={handleCta} disabled={loading}>COMEÇAR AGORA <ArrowRight /></Button>
+            <a className="landing-login" href={PUBLISHED_APP_URL}>Entrar</a>
+            <a className="landing-button landing-button--small" href={PUBLISHED_APP_URL}>COMEÇAR AGORA <ArrowRight /></a>
             <button type="button" className="landing-menu-button" onClick={() => setMobileMenu(!mobileMenu)} aria-expanded={mobileMenu} aria-label="Abrir menu">{mobileMenu ? <X /> : <Menu />}</button>
           </div>
         </div>
-        {mobileMenu && <nav className="landing-mobile-nav" aria-label="Navegação mobile">{navItems.map(item => <a key={item.href} href={item.href} onClick={closeMenu}>{item.label}</a>)}<button type="button" onClick={handleCta}>{isAuthenticated ? "IR PARA MEU PAINEL" : "COMEÇAR AGORA"} <ArrowRight /></button></nav>}
+        {mobileMenu && <nav className="landing-mobile-nav" aria-label="Navegação mobile">{navItems.map(item => <a key={item.href} href={item.href} onClick={closeMenu}>{item.label}</a>)}<a href={PUBLISHED_APP_URL}>COMEÇAR AGORA <ArrowRight /></a></nav>}
       </header>
 
       <main id="conteudo">
@@ -298,7 +266,7 @@ export default function Landing() {
               <h1>Antes de cuidar dos seus negócios, cuide daquilo que sustenta sua caminhada.</h1>
               <p className="landing-lead">365 dias de devocionais, reflexões e oração para ajudar você a empreender com fé, sabedoria e propósito.</p>
               <div className="landing-hero__actions">
-                <Button className="landing-button landing-button--hero" onClick={handleCta} disabled={loading}>COMEÇAR AGORA <ArrowRight /></Button>
+                <a className="landing-button landing-button--hero" href={PUBLISHED_APP_URL}>COMEÇAR AGORA <ArrowRight /></a>
                 <span><Clock3 /> 5 minutos por dia</span>
               </div>
               <div className="landing-proof">
@@ -348,7 +316,7 @@ export default function Landing() {
 
         <section id="jornada" className="journey-section landing-section">
           <div className="landing-container journey-section__grid">
-            <div className="journey-copy"><p className="landing-eyebrow"><span /> CONSTÂNCIA COM PROPÓSITO</p><h2>365 dias.<br /><em>Uma jornada.</em></h2><p>Um dia de cada vez. Uma reflexão de cada vez. Uma decisão de cada vez.</p><div className="journey-stats"><div><strong>47 <span>/ 365</span></strong><small>dias concluídos</small></div><div><strong>12</strong><small><Flame /> dias consecutivos</small></div></div><Button className="landing-button landing-button--outline" onClick={handleCta}>COMEÇAR MINHA JORNADA <ArrowRight /></Button></div>
+            <div className="journey-copy"><p className="landing-eyebrow"><span /> CONSTÂNCIA COM PROPÓSITO</p><h2>365 dias.<br /><em>Uma jornada.</em></h2><p>Um dia de cada vez. Uma reflexão de cada vez. Uma decisão de cada vez.</p><div className="journey-stats"><div><strong>47 <span>/ 365</span></strong><small>dias concluídos</small></div><div><strong>12</strong><small><Flame /> dias consecutivos</small></div></div><a className="landing-button landing-button--outline" href={PUBLISHED_APP_URL}>COMEÇAR MINHA JORNADA <ArrowRight /></a></div>
             <div className="year-card">
               <div className="year-card__header"><div><span>MINHA JORNADA</span><strong>2026</strong></div><CalendarDays /></div>
               <div className="year-grid">{calendarMonths.map((month, monthIndex) => <div className="month-card" key={month}><strong>{month}</strong><div>{Array.from({ length: 15 }).map((_, dayIndex) => { const completed = monthIndex < 3 || (monthIndex === 3 && dayIndex < 2); const current = monthIndex === 3 && dayIndex === 2; return <i key={dayIndex} className={current ? "current" : completed ? "completed" : ""} />; })}</div></div>)}</div>
@@ -373,7 +341,7 @@ export default function Landing() {
               <div className="device-card device-card--three"><span>03 — PROGRESSO</span><div className="device-shell"><MiniScreen type="progress" /></div></div>
               <div className="device-card device-card--four"><span>04 — CONQUISTAS</span><div className="device-shell"><MiniScreen type="achievements" /></div></div>
             </div>
-            <div className="experience-cta"><p>Uma experiência simples o bastante para caber no seu dia.<br />Profunda o bastante para transformá-lo.</p><Button className="landing-button landing-button--gold" onClick={handleCta}>CONHECER A EXPERIÊNCIA <ArrowRight /></Button></div>
+            <div className="experience-cta"><p>Uma experiência simples o bastante para caber no seu dia.<br />Profunda o bastante para transformá-lo.</p><a className="landing-button landing-button--gold" href={PUBLISHED_APP_URL}>CONHECER A EXPERIÊNCIA <ArrowRight /></a></div>
           </div>
         </section>
 
@@ -416,7 +384,7 @@ export default function Landing() {
           <div className="landing-container">
             <div className="landing-section-heading"><p className="landing-eyebrow"><span /> COMO FUNCIONA</p><h2>Simples para começar.<br />Profundo para continuar.</h2></div>
             <div className="how-grid"><article><span>01</span><div><BookOpen /></div><h3>Abra seu Minuto</h3><p>Todos os dias você encontra uma nova reflexão.</p></article><article><span>02</span><div><Clock3 /></div><h3>Pare por 5 minutos</h3><p>Leia, reflita e ore com calma e intenção.</p></article><article><span>03</span><div><ArrowRight /></div><h3>Leve para o seu dia</h3><p>Transforme a reflexão em uma atitude prática.</p></article></div>
-            <div className="mid-cta"><div><span>COMECE COM CINCO MINUTOS</span><h3>Você não precisa mudar tudo hoje.</h3><p>Comece separando alguns minutos para ouvir Deus.</p></div><Button className="landing-button landing-button--gold" onClick={handleCta}>COMEÇAR AGORA <ArrowRight /></Button></div>
+            <div className="mid-cta"><div><span>COMECE COM CINCO MINUTOS</span><h3>Você não precisa mudar tudo hoje.</h3><p>Comece separando alguns minutos para ouvir Deus.</p></div><a className="landing-button landing-button--gold" href={PUBLISHED_APP_URL}>COMEÇAR AGORA <ArrowRight /></a></div>
           </div>
         </section>
 
@@ -428,7 +396,7 @@ export default function Landing() {
         </section>
 
         <section className="final-cta landing-section">
-          <div className="final-cta__glow" /><div className="landing-container final-cta__inner"><Brand /><p className="landing-eyebrow"><span /> SUA JORNADA COMEÇA AQUI</p><h2>Seu negócio precisa da sua estratégia.<br /><em>Sua jornada precisa de propósito.</em></h2><p>Comece uma jornada de 365 dias para fortalecer sua fé, sua sabedoria e a forma como você conduz aquilo que Deus colocou em suas mãos.</p><Button className="landing-button landing-button--final" onClick={handleCta}>COMEÇAR AGORA <ArrowRight /></Button><small>Um minuto para ouvir Deus. Um dia para empreender com propósito.</small></div>
+          <div className="final-cta__glow" /><div className="landing-container final-cta__inner"><Brand /><p className="landing-eyebrow"><span /> SUA JORNADA COMEÇA AQUI</p><h2>Seu negócio precisa da sua estratégia.<br /><em>Sua jornada precisa de propósito.</em></h2><p>Comece uma jornada de 365 dias para fortalecer sua fé, sua sabedoria e a forma como você conduz aquilo que Deus colocou em suas mãos.</p><a className="landing-button landing-button--final" href={PUBLISHED_APP_URL}>COMEÇAR AGORA <ArrowRight /></a><small>Um minuto para ouvir Deus. Um dia para empreender com propósito.</small></div>
         </section>
       </main>
 

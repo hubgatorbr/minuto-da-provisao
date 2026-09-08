@@ -8,9 +8,7 @@ import { registerOAuthRoutes } from "./oauth";
 import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
-import { sdk } from "./sdk";
 import { serveStatic, setupVite } from "./vite";
-import { getAuthStatus } from "../authStatus";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -41,9 +39,6 @@ async function startServer() {
   // Configure body parser with larger size limit for file uploads
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
-  app.get("/api/auth/status", async (req, res) => {
-    res.json(await getAuthStatus(() => sdk.authenticateRequest(req)));
-  });
   registerStorageProxy(app);
   registerOAuthRoutes(app);
   // tRPC API

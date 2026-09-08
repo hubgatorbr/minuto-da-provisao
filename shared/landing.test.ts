@@ -1,18 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { getLandingCtaAction, getLandingRevealDelay } from "./landing";
+import { getLandingRevealDelay, PUBLISHED_APP_URL } from "./landing";
 
-describe("getLandingCtaAction", () => {
-  it("bloqueia a ação enquanto o estado de autenticação está carregando", () => {
-    expect(getLandingCtaAction(false, true)).toBe("disabled");
-    expect(getLandingCtaAction(true, true)).toBe("disabled");
-  });
-
-  it("leva usuários autenticados diretamente ao dashboard", () => {
-    expect(getLandingCtaAction(true, false)).toBe("dashboard");
-  });
-
-  it("inicia o login para visitantes não autenticados", () => {
-    expect(getLandingCtaAction(false, false)).toBe("login");
+describe("PUBLISHED_APP_URL", () => {
+  it("aponta somente para a aplicação publicada", () => {
+    const url = new URL(PUBLISHED_APP_URL);
+    expect(url.protocol).toBe("https:");
+    expect(url.hostname).toBe("minutopage-hrqkpvou.manus.space");
+    expect(url.pathname).toBe("/dashboard");
   });
 });
 

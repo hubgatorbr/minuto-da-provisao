@@ -471,8 +471,8 @@
   .landing-menu-button { display: inline-flex; }
   .landing-mobile-nav { display: grid; border-top: 1px solid rgba(7,28,53,.1); background: var(--lp-cream); padding: 17px 20px 21px; box-shadow: 0 25px 40px rgba(7,28,53,.1); }
   .landing-mobile-nav a { border-bottom: 1px solid rgba(7,28,53,.08); padding: 13px 2px; color: var(--lp-navy); font-size: 13px; font-weight: 600; }
-  .landing-mobile-nav button { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 16px; border: 0; border-radius: 4px; background: var(--lp-gold); padding: 14px; color: var(--lp-navy); font-size: 10px; font-weight: 800; letter-spacing: .08em; }
-  .landing-mobile-nav button svg { width: 15px; }
+  .landing-mobile-nav > a:last-child { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 16px; border: 0; border-radius: 4px; background: var(--lp-gold); padding: 14px; color: var(--lp-navy); font-size: 10px; font-weight: 800; letter-spacing: .08em; }
+  .landing-mobile-nav > a:last-child svg { width: 15px; }
   .dark .landing-mobile-nav { border-color: rgba(255,255,255,.1); background: #071a2d; }
   .dark .landing-mobile-nav a { border-color: rgba(255,255,255,.1); color: #fff; }
   .landing-hero { min-height: auto; padding: 135px 0 60px; }

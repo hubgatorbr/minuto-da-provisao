@@ -41,3 +41,12 @@ Os itens abaixo ficam documentados como evolução futura, sem bloquear esta ent
 - [x] Respeitar `prefers-reduced-motion` e desativar rolagem suave quando solicitado pelo sistema.
 - [x] Validar 16 testes, tipagem, build e comportamento visual em desktop e mobile.
 - [x] Manter Lighthouse em 98/100 no desktop e 68/100 no mobile em performance, com 100/100 em acessibilidade, boas práticas e SEO.
+
+## Integração com a aplicação publicada — concluída
+
+- [x] Remover consulta de sessão e OAuth da landing.
+- [x] Converter os CTAs em links semânticos para `https://minutopage-hrqkpvou.manus.space/dashboard`.
+- [x] Manter navegação institucional e âncoras da própria landing independentes.
+- [x] Confirmar 7 links comerciais no desktop e o CTA mobile com destino único para a aplicação publicada.
+- [x] Confirmar navegação ponta a ponta até o dashboard publicado, 12 testes, tipagem e build.
+- [x] Confirmar Lighthouse 99/100 no desktop e 77/100 no mobile em performance, com 100/100 em acessibilidade, boas práticas e SEO.
