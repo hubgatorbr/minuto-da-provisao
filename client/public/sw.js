@@ -1,4 +1,4 @@
-const CACHE = 'minuto-da-provisao-v2';
+const CACHE = 'minuto-da-provisao-v4';
 const APP_SHELL = ['/manifest.json', '/icon.svg'];
 
 self.addEventListener('install', event => {
@@ -19,10 +19,20 @@ self.addEventListener('fetch', event => {
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
 
-  // API requests must always reach Express/tRPC and must never fall back to HTML.
+  // tRPC and OAuth always reach the live server.
   if (url.pathname.startsWith('/api/')) return;
 
-  // Always get the document from the current server. Never cache index.html.
+  // Vite development modules are regenerated in place and must not be cached.
+  const isDevModule =
+    url.pathname.startsWith('/src/') ||
+    url.pathname.startsWith('/@fs/') ||
+    url.pathname.startsWith('/@vite/');
+  if (isDevModule) {
+    event.respondWith(fetch(request));
+    return;
+  }
+
+  // Documents are network-first so route changes are available immediately.
   if (request.mode === 'navigate' || request.destination === 'document') {
     event.respondWith(fetch(request));
     return;

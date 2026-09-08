@@ -13,8 +13,22 @@
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-    <script>if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js?v=2', { updateViaCache: 'none' }));</script>
+    <script type="module">
+      // One-time non-sensitive cache migration. No OAuth or session data is
+      // written to browser storage; only obsolete service-worker caches reset.
+      if ('serviceWorker' in navigator) {
+        const migrationKey = 'minuto-sw-migration';
+        if (localStorage.getItem(migrationKey) !== 'v4') {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(registrations.map(registration => registration.unregister()));
+          const cacheKeys = await caches.keys();
+          await Promise.all(cacheKeys.filter(key => key.startsWith('minuto-da-provisao-')).map(key => caches.delete(key)));
+          localStorage.setItem(migrationKey, 'v4');
+        }
+      }
+      await import('/src/main.tsx');
+    </script>
+    <script>if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js?v=4', { updateViaCache: 'none' }));</script>
     <script defer src="%VITE_ANALYTICS_ENDPOINT%/umami" data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
   </body>
 </html>

@@ -10,9 +10,10 @@ import Achievements from "./pages/Achievements";
 import AppHome from "./pages/AppHome";
 import Devotional from "./pages/Devotional";
 import Favorites from "./pages/Favorites";
-import Home from "./pages/Home";
 import Journal from "./pages/Journal";
 import Journey from "./pages/Journey";
+import LandingPage from "./pages/LandingPage";
+import Legal from "./pages/Legal";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import type { ComponentType } from "react";
@@ -23,8 +24,11 @@ function AuthenticatedPage({ page: Page }: { page: ComponentType }) {
 
 function Router() {
   return <Switch>
-    <Route path="/" component={Home} />
+    <Route path="/" component={LandingPage} />
+    <Route path="/manus-api" component={LandingPage} />
     <Route path="/login" component={Login} />
+    <Route path="/termos" component={Legal} />
+    <Route path="/privacidade" component={Legal} />
     <Route path="/app" component={() => <AuthenticatedPage page={AppHome} />} />
     <Route path="/devocional/:dayNumber" component={() => <AuthenticatedPage page={Devotional} />} />
     <Route path="/jornada" component={() => <AuthenticatedPage page={Journey} />} />
