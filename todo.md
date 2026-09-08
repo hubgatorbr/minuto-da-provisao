@@ -45,9 +45,19 @@ Os itens abaixo ficam documentados como evolução futura, sem bloquear esta ent
 ## Integração com a aplicação publicada — concluída
 
 - [x] Remover consulta de sessão e OAuth da landing.
-- [x] Converter os CTAs em links semânticos para `https://minutopage-hrqkpvou.manus.space/dashboard`.
+- [x] Converter os CTAs em links semânticos para `https://minutopage-hrqkpvou.manus.space/login`.
 - [x] Manter navegação institucional e âncoras da própria landing independentes.
-- [x] Confirmar 7 links comerciais no desktop e o CTA mobile com destino único para a aplicação publicada.
-- [x] Confirmar navegação ponta a ponta até o dashboard publicado, 12 testes, tipagem e build.
+- [x] Confirmar 7 links comerciais no desktop e o CTA mobile com destino único para o login da aplicação publicada.
+- [x] Confirmar navegação ponta a ponta até a página de login, 12 testes, tipagem e build.
 - [x] Confirmar Lighthouse 99/100 no desktop e 77/100 no mobile em performance, com 100/100 em acessibilidade, boas práticas e SEO.
-- [x] Centralizar os CTAs na URL estável do Manus Space, que recebe automaticamente a versão publicada mais recente.
+- [x] Centralizar os CTAs na rota de login da URL estável do Manus Space.
+
+## Página de login da aplicação — concluída
+
+- [x] Criar uma página `/login` responsiva e alinhada à identidade visual do produto.
+- [x] Iniciar o OAuth Manus somente após ação explícita no botão de entrada.
+- [x] Redirecionar sessões já autenticadas diretamente ao dashboard.
+- [x] Concluir o callback OAuth em `/dashboard`.
+- [x] Validar a rota, o CTA da landing e o início do OAuth no navegador.
+- [x] Confirmar o layout anônimo em desktop e mobile, além do redirecionamento de sessões autenticadas.
+- [x] Atingir Lighthouse 87/100 em performance e 100/100 em acessibilidade, boas práticas e SEO na rota `/login`.

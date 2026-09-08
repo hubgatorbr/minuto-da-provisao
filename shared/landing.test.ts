@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { getLandingRevealDelay, LATEST_PUBLISHED_APP_URL } from "./landing";
+import { getLandingRevealDelay, PUBLISHED_APP_LOGIN_URL } from "./landing";
 
-describe("LATEST_PUBLISHED_APP_URL", () => {
-  it("usa a URL estável que recebe a versão publicada mais recente", () => {
-    const url = new URL(LATEST_PUBLISHED_APP_URL);
+describe("PUBLISHED_APP_LOGIN_URL", () => {
+  it("direciona os CTAs para a página de login da aplicação publicada", () => {
+    const url = new URL(PUBLISHED_APP_LOGIN_URL);
     expect(url.protocol).toBe("https:");
     expect(url.hostname).toBe("minutopage-hrqkpvou.manus.space");
-    expect(url.pathname).toBe("/dashboard");
+    expect(url.pathname).toBe("/login");
   });
 });
 

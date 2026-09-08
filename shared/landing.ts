@@ -1,6 +1,7 @@
 // The Manus Space hostname is stable: each successful publication replaces the
-// live checkpoint behind this URL, so CTAs always open the latest published app.
-export const LATEST_PUBLISHED_APP_URL = "https://minutopage-hrqkpvou.manus.space/dashboard";
+// live checkpoint behind this URL. Every commercial CTA enters through the
+// application's dedicated login page rather than opening protected content.
+export const PUBLISHED_APP_LOGIN_URL = "https://minutopage-hrqkpvou.manus.space/login";
 
 export function getLandingRevealDelay(index: number, step = 60, maximum = 240) {
   const safeIndex = Math.max(0, Math.floor(index));
