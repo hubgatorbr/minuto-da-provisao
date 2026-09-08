@@ -31,3 +31,13 @@ Os itens abaixo ficam documentados como evolução futura, sem bloquear esta ent
 - [x] Adicionar testes unitários para estados de CTA e status de autenticação.
 - [x] Validar landing, dashboard, âncoras, FAQ, rotas legais, tema e OAuth no preview real.
 - [x] Atingir Lighthouse 96/100 em performance desktop e 100/100 em acessibilidade, boas práticas e SEO; no perfil mobile, 64/100 em performance e 100/100 nas demais categorias.
+
+## Animações e microinterações — concluídas
+
+- [x] Adicionar entradas progressivas acionadas por `IntersectionObserver` nos principais blocos e grupos.
+- [x] Aplicar stagger limitado a cards, etapas, mockups, conquistas e itens de FAQ.
+- [x] Aprimorar hover, brilho, deslocamento de ícone e feedback de press dos botões.
+- [x] Animar a abertura do menu mobile e manter foco visível por teclado.
+- [x] Respeitar `prefers-reduced-motion` e desativar rolagem suave quando solicitado pelo sistema.
+- [x] Validar 16 testes, tipagem, build e comportamento visual em desktop e mobile.
+- [x] Manter Lighthouse em 98/100 no desktop e 68/100 no mobile em performance, com 100/100 em acessibilidade, boas práticas e SEO.

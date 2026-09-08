@@ -2,7 +2,7 @@ import { startLogin } from "@/const";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/contexts/ThemeContext";
 import { COOKIE_NAME } from "@shared/const";
-import { getLandingCtaAction } from "@shared/landing";
+import { getLandingCtaAction, getLandingRevealDelay } from "@shared/landing";
 import {
   ArrowRight,
   BookOpen,
@@ -32,7 +32,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import "./landing.css";
 
 const navItems = [
@@ -156,6 +156,89 @@ export default function Landing() {
   const [authState, setAuthState] = useState<"loading" | "guest" | "authenticated">("loading");
   const isAuthenticated = authState === "authenticated";
   const loading = authState === "loading";
+
+  useLayoutEffect(() => {
+    const root = document.querySelector<HTMLElement>(".landing");
+    if (!root) return;
+
+    document.documentElement.classList.add("landing-smooth-scroll");
+
+    const motionGroups = [
+      [".landing-section-heading", "up"],
+      [".problem-card", "up"],
+      [".step-card", "up"],
+      [".theme-card", "up"],
+      [".device-card", "up"],
+      [".achievement", "left"],
+      [".audience-list > p", "left"],
+      [".how-grid article", "up"],
+      [".faq-list details", "up"],
+    ] as const;
+
+    const motionSingles = [
+      [".impact-section__grid", "left"],
+      [".problem-statement", "scale"],
+      [".journey-copy", "left"],
+      [".year-card", "right"],
+      [".experience-cta", "up"],
+      [".constancy-section__grid > div:first-child", "left"],
+      [".achievement-list", "right"],
+      [".provision-card", "scale"],
+      [".bible-book", "left"],
+      [".bible-section__grid > div:last-child", "right"],
+      [".audience-section__grid > div:first-child", "left"],
+      [".not-for-card", "right"],
+      [".position-section__inner", "scale"],
+      [".mid-cta", "scale"],
+      [".faq-section__grid > div:first-child", "left"],
+      [".final-cta__inner", "scale"],
+      [".landing-footer__top", "up"],
+    ] as const;
+
+    const animatedElements = new Set<HTMLElement>();
+    const prepareElement = (element: HTMLElement, direction: string, delay = 0) => {
+      if (animatedElements.has(element)) return;
+      element.classList.add("landing-motion", `landing-motion--${direction}`);
+      element.style.setProperty("--landing-motion-delay", `${delay}ms`);
+      animatedElements.add(element);
+    };
+
+    motionGroups.forEach(([selector, direction]) => {
+      root.querySelectorAll<HTMLElement>(selector).forEach((element, index) => {
+        prepareElement(element, direction, getLandingRevealDelay(index));
+      });
+    });
+
+    motionSingles.forEach(([selector, direction]) => {
+      const element = root.querySelector<HTMLElement>(selector);
+      if (element) prepareElement(element, direction);
+    });
+
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion || !("IntersectionObserver" in window)) {
+      animatedElements.forEach(element => element.classList.add("is-visible"));
+      return () => document.documentElement.classList.remove("landing-smooth-scroll");
+    }
+
+    root.classList.add("landing-motion-ready");
+    const observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        });
+      },
+      { rootMargin: "0px 0px -10% 0px", threshold: 0.08 },
+    );
+
+    animatedElements.forEach(element => observer.observe(element));
+
+    return () => {
+      observer.disconnect();
+      document.documentElement.classList.remove("landing-smooth-scroll");
+    };
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
