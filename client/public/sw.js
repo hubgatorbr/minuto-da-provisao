@@ -1,4 +1,4 @@
-const CACHE = 'minuto-da-provisao-v3';
+const CACHE = 'minuto-da-provisao-v2';
 const APP_SHELL = ['/manifest.json', '/icon.svg'];
 
 self.addEventListener('install', event => {

@@ -1,53 +1,48 @@
-import AppShell from "@/components/AppShell";
-import BibleReference from "@/components/BibleReference";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { startLogin } from "@/const";
-import { useAuth } from "@/_core/hooks/useAuth";
-import { trpc } from "@/lib/trpc";
-import { getBibleTranslation } from "@shared/bible-translations";
-import { ArrowRight, BookOpen, CheckCircle2, ChevronRight, Clock3, Flame, Heart, Loader2, Sparkles, Target } from "lucide-react";
-import { Link, useLocation } from "wouter";
+import { getAppUrl } from "@/const";
+import { ArrowRight, BookOpen, Check, Compass, Heart, Sparkles, Target } from "lucide-react";
+import type { ReactNode } from "react";
 
-function dayOfYear() { const now = new Date(); const start = new Date(now.getFullYear(), 0, 0); return Math.floor((now.getTime() - start.getTime()) / 86400000); }
-function greeting() { const hour = new Date().getHours(); return hour < 12 ? "Bom dia" : hour < 18 ? "Boa tarde" : "Boa noite"; }
-function streak(ids: number[]) { const done = new Set(ids); let count = 0; for (let day = dayOfYear(); day >= 1 && done.has(day); day -= 1) count += 1; return count; }
+const loginUrl = getAppUrl("/login");
+
+function CtaLink({ children, secondary = false }: { children: ReactNode; secondary?: boolean }) {
+  return <a href={loginUrl} className={secondary ? "inline-flex h-12 items-center justify-center rounded-xl border border-[#d9b45e]/45 px-5 text-sm font-semibold text-[#f5df9f] transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d9b45e]" : "inline-flex h-12 items-center justify-center rounded-xl bg-[#d9b45e] px-5 text-sm font-semibold text-[#102a43] shadow-[0_10px_28px_rgba(217,180,94,.22)] transition-transform hover:-translate-y-0.5 hover:bg-[#e7c976] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#f5df9f]"}>{children}</a>;
+}
 
 export default function Home() {
-  const [, navigate] = useLocation();
-  const { user, isAuthenticated, loading } = useAuth();
-  const day = dayOfYear();
-  const devotionalQuery = trpc.devotional.byDay.useQuery({ dayNumber: day });
-  const stateQuery = trpc.devotional.state.useQuery(undefined, { enabled: isAuthenticated });
-  const journeyQuery = trpc.journey.stats.useQuery(undefined, { enabled: isAuthenticated });
-  const devotional = devotionalQuery.data;
-  const bibleTranslation = getBibleTranslation(devotional?.bibleTranslation);
-  const completed = stateQuery.data?.completedDays ?? stateQuery.data?.completedIds ?? [];
-  const completedCount = completed.length;
-  const currentStreak = journeyQuery.data?.currentStreak ?? streak(completed);
-  const progress = Math.round((completedCount / 365) * 100);
-  const displayName = user?.name?.split(" ")[0] || "Empreendedor";
-  const isDone = completed.includes(day);
+  return <div className="min-h-screen bg-[#f7f8fb] text-[#14263a]">
+    <header className="border-b border-[#e4eaf0] bg-[#f7f8fb]/95 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
+        <a href="/" className="flex items-center gap-3" aria-label="Minuto da Provisão, início">
+          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#d9b45e] text-[#102a43]"><BookOpen className="h-5 w-5" /></span>
+          <span><strong className="block font-serif text-lg font-semibold tracking-tight text-[#102a43]">Minuto</strong><span className="-mt-1 block text-[11px] uppercase tracking-[.2em] text-[#b38c31]">da Provisão</span></span>
+        </a>
+        <a href={loginUrl} className="rounded-xl px-4 py-2 text-sm font-semibold text-[#265a82] transition-colors hover:bg-[#e8f0f5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b38c31]">Entrar</a>
+      </div>
+    </header>
 
-  if (devotionalQuery.isLoading || loading || (isAuthenticated && (stateQuery.isLoading || journeyQuery.isLoading))) return <AppShell><div className="flex min-h-[70vh] items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-[#b38c31]" /></div></AppShell>;
+    <main>
+      <section className="relative overflow-hidden bg-[#102a43] text-white">
+        <div className="absolute -right-32 -top-40 h-[32rem] w-[32rem] rounded-full bg-[#d9b45e]/10 blur-3xl" />
+        <div className="absolute bottom-0 left-1/2 h-40 w-full -translate-x-1/2 bg-gradient-to-r from-transparent via-[#d9b45e]/10 to-transparent" />
+        <div className="relative mx-auto grid max-w-7xl gap-12 px-5 py-20 sm:px-8 lg:grid-cols-[1.08fr_.92fr] lg:items-center lg:py-28">
+          <div>
+            <p className="mb-5 flex items-center gap-2 text-xs font-semibold uppercase tracking-[.24em] text-[#d9b45e]"><Sparkles className="h-4 w-4" /> Fé para decidir. Clareza para construir.</p>
+            <h1 className="max-w-3xl font-serif text-4xl font-semibold leading-[1.08] tracking-tight sm:text-6xl">Um minuto para ouvir Deus. Um dia para empreender com propósito.</h1>
+            <p className="mt-6 max-w-xl text-base leading-8 text-[#c9d8e4] sm:text-lg">Uma prática diária, simples e profunda, para líderes que querem cuidar do coração antes de cuidar dos negócios.</p>
+            <div className="mt-8 flex flex-wrap gap-3"><CtaLink>Criar minha conta <ArrowRight className="ml-2 h-4 w-4" /></CtaLink><CtaLink secondary>Começar agora</CtaLink></div>
+            <p className="mt-5 text-xs text-[#9fb2c4]">Acesso seguro com sua conta Google pela autenticação oficial da aplicação.</p>
+          </div>
+          <div className="relative rounded-[30px] border border-white/10 bg-white/[.06] p-5 shadow-2xl backdrop-blur-sm sm:p-7">
+            <div className="rounded-[24px] bg-[#f7f8fb] p-6 text-[#14263a] sm:p-8"><div className="flex items-center justify-between"><span className="rounded-full bg-[#e8f0f5] px-3 py-1 text-[10px] font-bold uppercase tracking-[.16em] text-[#2f5d7c]">Seu encontro diário</span><span className="text-xs text-[#718291]">5 min</span></div><p className="mt-8 text-xs font-semibold uppercase tracking-[.17em] text-[#b38c31]">Crescimento</p><h2 className="mt-2 font-serif text-3xl font-semibold leading-tight">A constância que sustenta suas decisões.</h2><p className="mt-4 text-sm leading-7 text-[#647789]">Uma pausa para refletir, aplicar e seguir com mais presença.</p><div className="mt-6 rounded-2xl border-l-4 border-[#d9b45e] bg-[#fffaf0] p-4"><p className="text-[10px] font-bold uppercase tracking-[.15em] text-[#a07c34]">Referência bíblica · Almeida</p><p className="mt-2 font-serif text-lg">“Confia ao Senhor as tuas obras...”</p></div></div>
+          </div>
+        </div>
+      </section>
 
-  return <AppShell><div className="mx-auto max-w-[1420px] px-4 py-7 sm:px-7 lg:px-10 lg:py-10">
-    <section className="relative overflow-hidden rounded-[28px] bg-[#102a43] px-6 py-8 text-white shadow-[0_18px_50px_rgba(16,40,32,.14)] sm:px-9 sm:py-10">
-      <div className="absolute -right-16 -top-20 h-64 w-64 rounded-full bg-[#d9b45e]/10 blur-3xl" /><div className="absolute bottom-0 right-0 h-28 w-4/5 bg-gradient-to-r from-transparent to-[#d9b45e]/10" />
-      <div className="relative max-w-2xl"><p className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[.22em] text-[#d9b45e]"><Sparkles className="h-3.5 w-3.5" /> Seu encontro diário</p><h1 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">{greeting()}, {displayName}.</h1><p className="mt-3 max-w-xl text-sm leading-6 text-[#c9d8e4] sm:text-base">Antes de cuidar dos seus negócios, cuide daquilo que sustenta sua caminhada.</p>{!isAuthenticated && <Button onClick={startLogin} variant="outline" className="mt-6 border-[#d9b45e]/40 bg-[#d9b45e]/10 text-[#f5df9f] hover:bg-[#d9b45e]/20">Começar minha jornada <ArrowRight className="ml-2 h-4 w-4" /></Button>}</div>
-    </section>
+      <section className="mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:py-24"><div className="max-w-2xl"><p className="text-xs font-bold uppercase tracking-[.2em] text-[#b38c31]">Uma jornada possível</p><h2 className="mt-3 font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Pequenos minutos. Mudanças que permanecem.</h2><p className="mt-4 text-base leading-7 text-[#647789]">O Minuto da Provisão conecta espiritualidade, liderança e vida real em uma experiência feita para caber na rotina.</p></div><div className="mt-10 grid gap-5 md:grid-cols-3"><article className="rounded-[24px] border border-[#e0e8ef] bg-white p-6 shadow-[0_12px_32px_rgba(20,38,58,.05)]"><Heart className="h-5 w-5 text-[#b38c31]" /><h3 className="mt-5 font-serif text-xl font-semibold">Ouça antes de agir</h3><p className="mt-2 text-sm leading-6 text-[#718291]">Comece o dia com uma leitura e uma reflexão que devolvem perspectiva às decisões.</p></article><article className="rounded-[24px] border border-[#e0e8ef] bg-white p-6 shadow-[0_12px_32px_rgba(20,38,58,.05)]"><Target className="h-5 w-5 text-[#b38c31]" /><h3 className="mt-5 font-serif text-xl font-semibold">Aplique ao seu contexto</h3><p className="mt-2 text-sm leading-6 text-[#718291]">Transforme princípios bíblicos em perguntas e ações práticas para sua liderança.</p></article><article className="rounded-[24px] border border-[#e0e8ef] bg-white p-6 shadow-[0_12px_32px_rgba(20,38,58,.05)]"><Compass className="h-5 w-5 text-[#b38c31]" /><h3 className="mt-5 font-serif text-xl font-semibold">Caminhe com constância</h3><p className="mt-2 text-sm leading-6 text-[#718291]">Acompanhe sua jornada, registre aprendizados e celebre cada conquista.</p></article></div></section>
 
-    <section className="mt-7 grid gap-5 xl:grid-cols-[minmax(0,1.6fr)_minmax(300px,.8fr)]">
-      <article className="relative overflow-hidden rounded-[28px] border border-[#e5dfd1] bg-[#ffffff] p-6 shadow-[0_8px_30px_rgba(20,38,28,.045)] dark:border-white/10 dark:bg-[#15263b] sm:p-8">
-        <div className="mb-6 flex items-center justify-between"><span className="rounded-full bg-[#e8f0f5] px-3 py-1 text-[11px] font-bold uppercase tracking-[.16em] text-[#2f5d7c] dark:bg-[#2b4036] dark:text-[#b6d3e4]">Dia {String(day).padStart(3, "0")} de 365</span><span className="flex items-center gap-1.5 text-xs font-medium text-[#718291]"><Clock3 className="h-3.5 w-3.5" /> 5 min</span></div>
-        <p className="text-xs font-semibold uppercase tracking-[.16em] text-[#b38c31]">{devotional?.theme || "Provisão"}</p><h2 className="mt-2 max-w-xl font-serif text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">{devotional?.title || "Seu Minuto da Provisão"}</h2><p className="mt-5 max-w-2xl text-sm leading-7 text-[#64726a] dark:text-[#b8c5bd]">Hoje, encontre clareza para liderar, decidir e construir sem separar a fé da sua vida de empreendedor.</p>
-        <div className="mt-6"><BibleReference reference={devotional?.bibleReference || "Provérbios 16:3"} translation={devotional?.bibleTranslation} text={devotional?.bibleText} /></div>
-        <div className="mt-7 flex flex-wrap gap-3"><Button onClick={() => navigate(`/devocional/${day}`)} className="h-11 rounded-xl bg-[#102a43] px-5 text-white hover:bg-[#1e4d73]">{isDone ? "Revisar meu minuto" : "Começar meu minuto"} <ArrowRight className="ml-2 h-4 w-4" /></Button>{isDone && <span className="flex items-center gap-1.5 py-2 text-xs font-semibold text-[#356d9a]"><CheckCircle2 className="h-4 w-4" /> Concluído hoje</span>}</div>
-      </article>
+      <section className="bg-[#edf3f8]"><div className="mx-auto max-w-5xl px-5 py-16 text-center sm:px-8 lg:py-20"><p className="text-xs font-bold uppercase tracking-[.2em] text-[#b38c31]">Seu próximo minuto começa agora</p><h2 className="mx-auto mt-3 max-w-2xl font-serif text-3xl font-semibold tracking-tight sm:text-4xl">Cuide daquilo que sustenta sua caminhada.</h2><p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-[#647789]">Crie sua conta e receba uma jornada diária feita para sua fé e seu propósito.</p><div className="mt-7"><CtaLink>Começar minha jornada <ArrowRight className="ml-2 h-4 w-4" /></CtaLink></div><div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs text-[#718291]"><span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-[#b38c31]" /> Conta segura</span><span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-[#b38c31]" /> Conteúdo diário</span><span className="flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-[#b38c31]" /> Jornada no seu ritmo</span></div></div></section>
+    </main>
 
-      <aside className="rounded-[28px] border border-[#dce5ed] bg-[#edf3f8] p-6 dark:border-white/10 dark:bg-[#1c344b]"><div className="flex items-start justify-between"><div><p className="text-xs font-bold uppercase tracking-[.15em] text-[#718291]">Minha jornada</p><h3 className="mt-1 font-serif text-2xl font-semibold">Seu ritmo importa.</h3></div><div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#d9b45e] text-[#102a43]"><Target className="h-5 w-5" /></div></div><div className="mt-7"><div className="mb-2 flex justify-between text-sm"><span className="font-medium">{completedCount} de 365 dias</span><span className="text-[#718291]">{progress}%</span></div><Progress value={progress} className="h-2 bg-[#d5e0ea] [&>div]:bg-[#b38c31]" /></div><div className="mt-6 grid grid-cols-2 gap-3"><div className="rounded-2xl bg-white/70 p-3 dark:bg-white/5"><Flame className="mb-2 h-4 w-4 text-[#c57b38]" /><p className="text-xl font-semibold">{currentStreak}</p><p className="text-[11px] text-[#718291]">sequência atual</p></div><div className="rounded-2xl bg-white/70 p-3 dark:bg-white/5"><BookOpen className="mb-2 h-4 w-4 text-[#3f6e8f]" /><p className="text-xl font-semibold">{365 - completedCount}</p><p className="text-[11px] text-[#718291]">dias por viver</p></div></div>{isAuthenticated && journeyQuery.data?.nextAchievement && <div className="mt-5 rounded-2xl bg-white/70 p-4 dark:bg-white/5"><p className="text-[10px] font-bold uppercase tracking-[.14em] text-[#a07c34]">Próxima conquista</p><p className="mt-1 font-serif text-lg font-semibold">{journeyQuery.data.nextAchievement.name}</p><p className="mt-1 text-xs text-[#718291]">{journeyQuery.data.nextAchievement.description}</p></div>}<Link href="/jornada" className="mt-6 flex items-center justify-between border-t border-[#cad8e3] pt-4 text-sm font-semibold text-[#265a82] dark:border-white/10 dark:text-[#b6d3e4]">Ver a jornada completa <ChevronRight className="h-4 w-4" /></Link></aside>
-    </section>
-
-    <section className="mt-7 grid gap-4 md:grid-cols-3"><div className="rounded-2xl border border-[#e5dfd1] bg-white/75 p-5 dark:border-white/10 dark:bg-white/[.03]"><Heart className="h-4 w-4 text-[#b38c31]" /><h3 className="mt-3 font-serif text-lg font-semibold">Fé que orienta</h3><p className="mt-1 text-sm leading-6 text-[#718291]">Uma pausa para ouvir, refletir e voltar ao essencial.</p></div><div className="rounded-2xl border border-[#e5dfd1] bg-white/75 p-5 dark:border-white/10 dark:bg-white/[.03]"><Target className="h-4 w-4 text-[#b38c31]" /><h3 className="mt-3 font-serif text-lg font-semibold">Sabedoria que decide</h3><p className="mt-1 text-sm leading-6 text-[#718291]">Princípios bíblicos aplicados a desafios reais do negócio.</p></div><div className="rounded-2xl border border-[#e5dfd1] bg-white/75 p-5 dark:border-white/10 dark:bg-white/[.03]"><BookOpen className="h-4 w-4 text-[#b38c31]" /><h3 className="mt-3 font-serif text-lg font-semibold">Bíblia {bibleTranslation.shortLabel}</h3><p className="mt-1 text-sm leading-6 text-[#718291]">Referências {bibleTranslation.shortLabel} e conteúdo devocional original, sem longas reproduções.</p></div></section>
-  </div></AppShell>;
+    <footer className="border-t border-[#e0e8ef] bg-[#f7f8fb]"><div className="mx-auto flex max-w-7xl flex-col gap-3 px-5 py-7 text-xs text-[#718291] sm:flex-row sm:items-center sm:justify-between sm:px-8"><span>© {new Date().getFullYear()} Minuto da Provisão.</span><span>Um minuto para ouvir Deus. Um dia para empreender com propósito.</span></div></footer>
+  </div>;
 }

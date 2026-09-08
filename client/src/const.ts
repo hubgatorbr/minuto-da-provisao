@@ -2,6 +2,20 @@ import { OAUTH_STATE_COOKIE, encodeOAuthState } from "@shared/const";
 
 export { COOKIE_NAME, ONE_YEAR_MS } from "@shared/const";
 
+function normalizeOrigin(value: string | undefined) {
+  return value?.trim().replace(/\/+$/, "") || "";
+}
+
+export const getAppUrl = (path = "/") => {
+  const configuredOrigin = normalizeOrigin(import.meta.env.VITE_APP_URL);
+  const currentOrigin = typeof window !== "undefined" ? window.location.origin : "";
+  const origin = configuredOrigin || currentOrigin;
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return `${origin}${normalizedPath}`;
+};
+
+export const getLandingUrl = () => normalizeOrigin(import.meta.env.VITE_LANDING_URL) || "/";
+
 // Start the Manus OAuth login. Call this from an event handler or effect at the
 // moment you want to navigate, e.g. `onClick={() => startLogin()}`.
 //

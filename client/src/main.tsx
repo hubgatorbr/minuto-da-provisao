@@ -1,39 +1,34 @@
 import { trpc } from "@/lib/trpc";
-import { COOKIE_NAME, UNAUTHED_ERR_MSG } from '@shared/const';
+import { UNAUTHED_ERR_MSG } from "@shared/const";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { httpBatchLink, TRPCClientError } from "@trpc/client";
 import { createRoot } from "react-dom/client";
 import superjson from "superjson";
 import App from "./App";
-import { startLogin } from "./const";
 import "./index.css";
 
 const queryClient = new QueryClient();
+const publicPaths = new Set(["/", "/login"]);
 
 const redirectToLoginIfUnauthorized = (error: unknown) => {
   if (!(error instanceof TRPCClientError)) return;
   if (typeof window === "undefined") return;
+  if (error.message !== UNAUTHED_ERR_MSG || publicPaths.has(window.location.pathname)) return;
 
-  const isUnauthorized = error.message === UNAUTHED_ERR_MSG;
-
-  if (!isUnauthorized) return;
-
-  startLogin();
+  // The next page's guard decides whether to show login or the authenticated app.
+  // This does not mint an OAuth nonce or expose any token to the browser.
+  window.location.assign("/login");
 };
 
 queryClient.getQueryCache().subscribe(event => {
   if (event.type === "updated" && event.action.type === "error") {
-    const error = event.query.state.error;
-    redirectToLoginIfUnauthorized(error);
-    console.error("[API Query Error]", error);
+    redirectToLoginIfUnauthorized(event.query.state.error);
   }
 });
 
 queryClient.getMutationCache().subscribe(event => {
   if (event.type === "updated" && event.action.type === "error") {
-    const error = event.mutation.state.error;
-    redirectToLoginIfUnauthorized(error);
-    console.error("[API Mutation Error]", error);
+    redirectToLoginIfUnauthorized(event.mutation.state.error);
   }
 });
 
@@ -42,37 +37,6 @@ const trpcClient = trpc.createClient({
     httpBatchLink({
       url: "/api/trpc",
       transformer: superjson,
-      headers() {
-        // Preview auto-login fallback: when the browser blocks iframe cookies
-        // (Safari ITP / private browsing / WebView), the runtime mirrors the
-        // session into sessionStorage so we can forward it as a Bearer token.
-        // Keep a preview-only copy in localStorage so a refresh/new tab does
-        // not lose the runtime session. Production continues using httpOnly
-        // cookies and never persists the bearer token in localStorage.
-        // The regular OAuth cookie flow keeps working and takes priority server-side.
-        try {
-          const isPreview =
-            window.location.hostname.endsWith(".manus.computer") ||
-            window.location.search.includes("from_webdev=1");
-          const raw =
-            sessionStorage.getItem("manus-cookie") ||
-            (isPreview ? localStorage.getItem("manus-cookie") : null);
-          if (raw) {
-            if (isPreview && !sessionStorage.getItem("manus-cookie")) {
-              localStorage.setItem("manus-cookie", raw);
-            }
-            const prefix = `${COOKIE_NAME}=`;
-            const pair = raw.split(";").find(s => s.trim().startsWith(prefix));
-            const token = pair?.trim().slice(prefix.length);
-            if (token) {
-              return { Authorization: `Bearer ${token}` };
-            }
-          }
-        } catch {
-          // sessionStorage unavailable
-        }
-        return {};
-      },
       fetch(input, init) {
         return globalThis.fetch(input, {
           ...(init ?? {}),

@@ -8,7 +8,7 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 
 const primaryItems = [
-  { href: "/", label: "Hoje", icon: House },
+  { href: "/app", label: "Hoje", icon: House },
   { href: "/jornada", label: "Jornada", icon: CalendarDays },
   { href: "/diario", label: "Diário", icon: NotebookPen },
   { href: "/favoritos", label: "Favoritos", icon: Heart },
@@ -19,11 +19,18 @@ const primaryItems = [
 type AppShellProps = { children: ReactNode };
 
 export default function AppShell({ children }: AppShellProps) {
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   const [mobileMenu, setMobileMenu] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const initials = user?.name?.split(" ").map(part => part[0]).slice(0, 2).join("").toUpperCase() || "MP";
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } finally {
+      navigate("/");
+    }
+  };
   const navItems = user?.role === "admin" ? [...primaryItems, { href: "/admin", label: "Admin", icon: Shield }] : primaryItems;
 
   const isCurrent = (href: string) => href === "/" ? location === "/" : location.startsWith(href);
@@ -42,7 +49,7 @@ export default function AppShell({ children }: AppShellProps) {
   return (
     <div className="min-h-screen bg-[#f7f8fb] text-[#14263a] dark:bg-[#0c1a2a] dark:text-[#eeeade]">
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-[252px] flex-col bg-[#102a43] px-4 py-6 lg:flex">
-        <Link href="/" className="mb-10 flex items-center gap-3 px-3">
+        <Link href="/app" className="mb-10 flex items-center gap-3 px-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#d9b45e] text-[#102a43] shadow-[0_8px_22px_rgba(217,180,94,.25)]"><BookOpen className="h-5 w-5" /></span>
           <span><strong className="block font-serif text-lg font-semibold tracking-tight text-white">Minuto</strong><span className="block -mt-1 text-[11px] uppercase tracking-[.2em] text-[#d9b45e]">da Provisão</span></span>
         </Link>
@@ -57,18 +64,18 @@ export default function AppShell({ children }: AppShellProps) {
 
       <header className="sticky top-0 z-30 border-b border-[#e9e5d9] bg-[#f7f8fb]/90 px-4 py-3 backdrop-blur-xl dark:border-white/10 dark:bg-[#0c1a2a]/90 lg:ml-[252px] lg:px-8">
         <div className="mx-auto flex max-w-[1420px] items-center justify-between gap-3">
-          <div className="flex items-center gap-3 lg:hidden"><Button variant="ghost" size="icon" aria-label="Abrir menu" onClick={() => setMobileMenu(true)}><Menu className="h-5 w-5" /></Button><Link href="/" className="font-serif font-semibold tracking-tight">Minuto da Provisão</Link></div>
+          <div className="flex items-center gap-3 lg:hidden"><Button variant="ghost" size="icon" aria-label="Abrir menu" onClick={() => setMobileMenu(true)}><Menu className="h-5 w-5" /></Button><Link href="/app" className="font-serif font-semibold tracking-tight">Minuto da Provisão</Link></div>
           <p className="hidden text-sm text-[#647789] dark:text-[#aab8af] lg:block">Um minuto para ouvir Deus. Um dia para empreender com propósito.</p>
           <div className="ml-auto flex items-center gap-2">
             <Button variant="ghost" size="icon" className="rounded-xl" aria-label="Alternar modo escuro" onClick={toggleTheme}>{theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}</Button>
-            {isAuthenticated ? <div className="flex items-center gap-2"><Link href="/perfil" className="hidden text-right sm:block"><span className="block text-xs font-semibold">{user?.name || "Empreendedor"}</span><span className="block text-[10px] text-[#7d8a83]">Minha conta</span></Link><button onClick={() => logout()} title="Sair" className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-[#102a43] text-xs font-semibold text-[#d9b45e] transition-transform hover:scale-105">{user?.avatarUrl ? <img src={user.avatarUrl} alt="" className="h-full w-full object-cover" /> : initials}</button></div> : <Button onClick={startLogin} className="rounded-xl bg-[#102a43] px-4 text-xs text-white hover:bg-[#183c5c]">Entrar</Button>}
+            {isAuthenticated ? <div className="flex items-center gap-2"><Link href="/perfil" className="hidden text-right sm:block"><span className="block text-xs font-semibold">{user?.name || "Empreendedor"}</span><span className="block text-[10px] text-[#7d8a83]">Minha conta</span></Link><button onClick={() => void handleLogout()} title="Sair" className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-[#102a43] text-xs font-semibold text-[#d9b45e] transition-transform hover:scale-105">{user?.avatarUrl ? <img src={user.avatarUrl} alt="" className="h-full w-full object-cover" /> : initials}</button></div> : <Button onClick={startLogin} className="rounded-xl bg-[#102a43] px-4 text-xs text-white hover:bg-[#183c5c]">Entrar</Button>}
           </div>
         </div>
       </header>
 
       <main className="pb-24 lg:ml-[252px] lg:pb-10">{children}</main>
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#102a43]/95 px-2 pb-[max(.35rem,env(safe-area-inset-bottom))] pt-1.5 backdrop-blur-xl lg:hidden"><NavLinks compact /></div>
-      {mobileMenu && <div className="fixed inset-0 z-50 bg-[#102a43] p-5 lg:hidden"><div className="mb-10 flex items-center justify-between"><Link href="/" onClick={() => setMobileMenu(false)} className="flex items-center gap-3 text-white"><span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#d9b45e] text-[#102a43]"><BookOpen className="h-5 w-5" /></span><span className="font-serif text-lg">Minuto da Provisão</span></Link><Button variant="ghost" size="icon" className="text-white" onClick={() => setMobileMenu(false)}><X /></Button></div><NavLinks />{isAuthenticated && <button onClick={() => logout()} className="mt-8 flex items-center gap-3 px-3 py-3 text-sm text-[#9baebe]"><LogOut className="h-4 w-4" /> Sair da conta</button>}</div>}
+      {mobileMenu && <div className="fixed inset-0 z-50 bg-[#102a43] p-5 lg:hidden"><div className="mb-10 flex items-center justify-between"><Link href="/app" onClick={() => setMobileMenu(false)} className="flex items-center gap-3 text-white"><span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#d9b45e] text-[#102a43]"><BookOpen className="h-5 w-5" /></span><span className="font-serif text-lg">Minuto da Provisão</span></Link><Button variant="ghost" size="icon" className="text-white" onClick={() => setMobileMenu(false)}><X /></Button></div><NavLinks />{isAuthenticated && <button onClick={() => void handleLogout()} className="mt-8 flex items-center gap-3 px-3 py-3 text-sm text-[#9baebe]"><LogOut className="h-4 w-4" /> Sair da conta</button>}</div>}
     </div>
   );
 }
