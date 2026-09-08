@@ -8,7 +8,7 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 
 const primaryItems = [
-  { href: "/", label: "Hoje", icon: House },
+  { href: "/dashboard", label: "Hoje", icon: House },
   { href: "/jornada", label: "Jornada", icon: CalendarDays },
   { href: "/diario", label: "Diário", icon: NotebookPen },
   { href: "/favoritos", label: "Favoritos", icon: Heart },
@@ -25,7 +25,7 @@ export default function AppShell({ children }: AppShellProps) {
   const initials = user?.name?.split(" ").map(part => part[0]).slice(0, 2).join("").toUpperCase() || "MP";
   const navItems = user?.role === "admin" ? [...primaryItems, { href: "/admin", label: "Admin", icon: Shield }] : primaryItems;
 
-  const isCurrent = (href: string) => href === "/" ? location === "/" : location.startsWith(href);
+  const isCurrent = (href: string) => location.startsWith(href);
   const NavLinks = ({ compact = false }: { compact?: boolean }) => (
     <nav className={cn(compact ? "grid grid-cols-5" : "space-y-1")}>{(compact ? navItems.filter(item => item.href !== "/admin") : navItems).map(({ href, label, icon: Icon }) => (
       <Link key={href} href={href} onClick={() => setMobileMenu(false)} className={cn(
@@ -41,7 +41,7 @@ export default function AppShell({ children }: AppShellProps) {
   return (
     <div className="min-h-screen bg-[#f7f5ef] text-[#18251f] dark:bg-[#101a17] dark:text-[#eeeade]">
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-[252px] flex-col bg-[#102820] px-4 py-6 lg:flex">
-        <Link href="/" className="mb-10 flex items-center gap-3 px-3">
+        <Link href="/dashboard" className="mb-10 flex items-center gap-3 px-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#d9b45e] text-[#102820] shadow-[0_8px_22px_rgba(217,180,94,.25)]"><BookOpen className="h-5 w-5" /></span>
           <span><strong className="block font-serif text-lg font-semibold tracking-tight text-white">Minuto</strong><span className="block -mt-1 text-[11px] uppercase tracking-[.2em] text-[#d9b45e]">da Provisão</span></span>
         </Link>
@@ -56,7 +56,7 @@ export default function AppShell({ children }: AppShellProps) {
 
       <header className="sticky top-0 z-30 border-b border-[#e9e5d9] bg-[#f7f5ef]/90 px-4 py-3 backdrop-blur-xl dark:border-white/10 dark:bg-[#101a17]/90 lg:ml-[252px] lg:px-8">
         <div className="mx-auto flex max-w-[1420px] items-center justify-between gap-3">
-          <div className="flex items-center gap-3 lg:hidden"><Button variant="ghost" size="icon" aria-label="Abrir menu" onClick={() => setMobileMenu(true)}><Menu className="h-5 w-5" /></Button><Link href="/" className="font-serif font-semibold tracking-tight">Minuto da Provisão</Link></div>
+          <div className="flex items-center gap-3 lg:hidden"><Button variant="ghost" size="icon" aria-label="Abrir menu" onClick={() => setMobileMenu(true)}><Menu className="h-5 w-5" /></Button><Link href="/dashboard" className="font-serif font-semibold tracking-tight">Minuto da Provisão</Link></div>
           <p className="hidden text-sm text-[#66756c] dark:text-[#aab8af] lg:block">Um minuto para ouvir Deus. Um dia para empreender com propósito.</p>
           <div className="ml-auto flex items-center gap-2">
             <Button variant="ghost" size="icon" className="rounded-xl" aria-label="Alternar modo escuro" onClick={toggleTheme}>{theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}</Button>
@@ -67,7 +67,7 @@ export default function AppShell({ children }: AppShellProps) {
 
       <main className="pb-24 lg:ml-[252px] lg:pb-10">{children}</main>
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-[#102820]/95 px-2 pb-[max(.35rem,env(safe-area-inset-bottom))] pt-1.5 backdrop-blur-xl lg:hidden"><NavLinks compact /></div>
-      {mobileMenu && <div className="fixed inset-0 z-50 bg-[#102820] p-5 lg:hidden"><div className="mb-10 flex items-center justify-between"><Link href="/" onClick={() => setMobileMenu(false)} className="flex items-center gap-3 text-white"><span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#d9b45e] text-[#102820]"><BookOpen className="h-5 w-5" /></span><span className="font-serif text-lg">Minuto da Provisão</span></Link><Button variant="ghost" size="icon" className="text-white" onClick={() => setMobileMenu(false)}><X /></Button></div><NavLinks />{isAuthenticated && <button onClick={() => logout()} className="mt-8 flex items-center gap-3 px-3 py-3 text-sm text-[#9eada7]"><LogOut className="h-4 w-4" /> Sair da conta</button>}</div>}
+      {mobileMenu && <div className="fixed inset-0 z-50 bg-[#102820] p-5 lg:hidden"><div className="mb-10 flex items-center justify-between"><Link href="/dashboard" onClick={() => setMobileMenu(false)} className="flex items-center gap-3 text-white"><span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#d9b45e] text-[#102820]"><BookOpen className="h-5 w-5" /></span><span className="font-serif text-lg">Minuto da Provisão</span></Link><Button variant="ghost" size="icon" className="text-white" onClick={() => setMobileMenu(false)}><X /></Button></div><NavLinks />{isAuthenticated && <button onClick={() => logout()} className="mt-8 flex items-center gap-3 px-3 py-3 text-sm text-[#9eada7]"><LogOut className="h-4 w-4" /> Sair da conta</button>}</div>}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-const CACHE = 'minuto-da-provisao-v2';
+const CACHE = 'minuto-da-provisao-v3';
 const APP_SHELL = ['/manifest.json', '/icon.svg'];
 
 self.addEventListener('install', event => {
@@ -21,6 +21,16 @@ self.addEventListener('fetch', event => {
 
   // API requests must always reach Express/tRPC and must never fall back to HTML.
   if (url.pathname.startsWith('/api/')) return;
+
+  // Vite development modules are regenerated in place and must never be cached.
+  const isDevModule =
+    url.pathname.startsWith('/src/') ||
+    url.pathname.startsWith('/@fs/') ||
+    url.pathname.startsWith('/@vite/');
+  if (isDevModule) {
+    event.respondWith(fetch(request));
+    return;
+  }
 
   // Always get the document from the current server. Never cache index.html.
   if (request.mode === 'navigate' || request.destination === 'document') {

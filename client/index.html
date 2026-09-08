@@ -2,19 +2,41 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <meta name="theme-color" content="#102820" />
-    <meta name="description" content="Minuto da Provisão: mentoria diária baseada na Bíblia para empreendedores." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#071c35" />
+    <meta name="description" content="365 dias de devocionais para empreendedores cristãos. Fé para liderar, sabedoria para decidir e propósito para construir." />
+    <meta name="keywords" content="devocional diário, empreendedores cristãos, fé e negócios, sabedoria bíblica, Minuto da Provisão" />
+    <meta property="og:title" content="Minuto da Provisão | Devocional Diário para Empreendedores" />
+    <meta property="og:description" content="365 dias de devocionais para empreendedores cristãos. Fé para liderar, sabedoria para decidir e propósito para construir." />
+    <meta property="og:type" content="website" />
     <link rel="manifest" href="/manifest.json" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <title>Minuto da Provisão</title>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" /></noscript>
+    <title>Minuto da Provisão | Devocional Diário para Empreendedores</title>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-    <script>if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js?v=2', { updateViaCache: 'none' }));</script>
+    <script type="module">
+      if ('serviceWorker' in navigator) {
+        try {
+          const migrationKey = 'minuto-sw-migration';
+          if (localStorage.getItem(migrationKey) !== 'v3') {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(registrations.map(registration => registration.unregister()));
+            const cacheKeys = await caches.keys();
+            await Promise.all(cacheKeys.map(cacheKey => caches.delete(cacheKey)));
+            localStorage.setItem(migrationKey, 'v3');
+          }
+        } catch {
+          // Storage and service worker APIs may be restricted by the browser.
+        }
+      }
+      await import('/src/main.tsx');
+    </script>
+    <script>if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js?v=3', { updateViaCache: 'none' }));</script>
     <script defer src="%VITE_ANALYTICS_ENDPOINT%/umami" data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
   </body>
 </html>

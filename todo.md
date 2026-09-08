@@ -18,3 +18,16 @@
 ## Backlog registrado, fora do escopo desta entrega
 
 Os itens abaixo ficam documentados como evolução futura, sem bloquear esta entrega: conectar o texto integral dos versículos a uma fonte pública versionada após revisão jurídica específica para cada território de comercialização; e gerar narração integral dos dias 8 a 365, além dos sete áudios já publicados.
+
+## Landing page de conversão — concluída
+
+- [x] Publicar a one page na rota `/` e preservar o aplicativo existente em `/dashboard`.
+- [x] Implementar narrativa completa de conversão, mockups autorais, jornada, temas, conquistas, posicionamento, FAQ e CTA final.
+- [x] Integrar todos os CTAs ao OAuth existente e redirecionar usuários autenticados ao dashboard.
+- [x] Criar Termos de Uso e Política de Privacidade sem links quebrados.
+- [x] Implementar dark mode, foco visível, skip link, responsividade e menu hamburger.
+- [x] Separar o bootstrap público do tRPC/React Query e carregar páginas internas sob demanda.
+- [x] Habilitar compressão HTTP e impedir cache de módulos Vite pelo service worker.
+- [x] Adicionar testes unitários para estados de CTA e status de autenticação.
+- [x] Validar landing, dashboard, âncoras, FAQ, rotas legais, tema e OAuth no preview real.
+- [x] Atingir Lighthouse 96/100 em performance desktop e 100/100 em acessibilidade, boas práticas e SEO; no perfil mobile, 64/100 em performance e 100/100 nas demais categorias.

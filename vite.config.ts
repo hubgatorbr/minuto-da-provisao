@@ -79,7 +79,7 @@ function vitePluginManusDebugCollector(): Plugin {
     name: "manus-debug-collector",
 
     transformIndexHtml(html) {
-      if (process.env.NODE_ENV === "production") {
+      if (process.env.NODE_ENV === "production" || process.argv.includes("build")) {
         return html;
       }
       return {
@@ -150,11 +150,14 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
+const visualEditingPlugins = process.argv.includes("build")
+  ? []
+  : [jsxLocPlugin(), vitePluginManusRuntime()];
 
 export default defineConfig({
-  plugins,
+  plugins: [react(), tailwindcss(), ...visualEditingPlugins, vitePluginManusDebugCollector()],
   resolve: {
+    dedupe: ["react", "react-dom"],
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),
       "@shared": path.resolve(import.meta.dirname, "shared"),
