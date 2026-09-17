@@ -8,18 +8,24 @@ import {
   favorites,
   InsertUser,
   journalEntries,
+  thematicTrails,
+  thematicTrailItems,
   userAchievements,
   userPreferences,
   userProgress,
+  userTrailProgress,
+  userTrailItemProgress,
   users,
   userStreaks,
 } from "../drizzle/schema";
 import { devotionals as devotionalSeeds } from "../shared/devotionals";
+import { thematicTrailSeeds } from "../shared/thematic-trails";
 import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 let seedPromise: Promise<void> | null = null;
 let achievementPromise: Promise<void> | null = null;
+let trailsPromise: Promise<void> | null = null;
 
 export const achievementSeeds = [
   { name: "Primeiro Minuto", description: "Concluiu o primeiro devocional.", icon: "trophy", requirementType: "completed", requirementValue: 1 },
@@ -97,6 +103,362 @@ export async function ensureAchievements() {
     for (const seed of achievementSeeds) if (!existing.some(item => item.name === seed.name)) await db.insert(achievements).values(seed);
   })().catch(error => { achievementPromise = null; throw error; });
   return achievementPromise;
+}
+
+export async function ensureThematicTrails() {
+  if (trailsPromise) return trailsPromise;
+  trailsPromise = (async () => {
+    const db = await getDb();
+    if (!db) return;
+    await ensureDevotionalCatalogue();
+    for (const trail of thematicTrailSeeds) {
+      const existingTrail = await db.select().from(thematicTrails).where(eq(thematicTrails.slug, trail.slug)).limit(1);
+      let trailId: number;
+      if (existingTrail.length === 0) {
+        const [result] = await db.insert(thematicTrails).values({
+          slug: trail.slug,
+          title: trail.title,
+          subtitle: trail.subtitle,
+          description: trail.description,
+          challenge: trail.challenge,
+          durationDays: trail.durationDays,
+          accessLevel: trail.accessLevel,
+          coverColor: trail.coverColor,
+          published: trail.published,
+          catalogRevision: trail.catalogRevision,
+        });
+        trailId = Number(result.insertId);
+      } else {
+        trailId = existingTrail[0].id;
+        await db.update(thematicTrails).set({
+          title: trail.title,
+          subtitle: trail.subtitle,
+          description: trail.description,
+          challenge: trail.challenge,
+          durationDays: trail.durationDays,
+          accessLevel: trail.accessLevel,
+          coverColor: trail.coverColor,
+          published: trail.published,
+          catalogRevision: trail.catalogRevision,
+        }).where(eq(thematicTrails.id, trailId));
+      }
+
+      if (trail.items.length > 0) {
+        for (const item of trail.items) {
+          const devRow = await db.select({ id: devotionals.id }).from(devotionals).where(eq(devotionals.dayNumber, item.dayNumber)).limit(1);
+          if (devRow.length === 0) continue;
+          const devotionalId = devRow[0].id;
+          const existingItem = await db.select().from(thematicTrailItems).where(
+            and(eq(thematicTrailItems.trailId, trailId), eq(thematicTrailItems.position, item.position))
+          ).limit(1);
+          if (existingItem.length === 0) {
+            await db.insert(thematicTrailItems).values({
+              trailId,
+              devotionalId,
+              position: item.position,
+              trailIntro: item.trailIntro ?? null,
+              actionPrompt: item.actionPrompt ?? null,
+              reviewQuestion: item.reviewQuestion ?? null,
+            });
+          } else {
+            await db.update(thematicTrailItems).set({
+              devotionalId,
+              trailIntro: item.trailIntro ?? null,
+              actionPrompt: item.actionPrompt ?? null,
+              reviewQuestion: item.reviewQuestion ?? null,
+            }).where(eq(thematicTrailItems.id, existingItem[0].id));
+          }
+        }
+      }
+    }
+  })().catch(error => { trailsPromise = null; throw error; });
+  return trailsPromise;
+}
+
+export async function listThematicTrails(filters?: {
+  challenge?: string;
+  durationDays?: number;
+  accessLevel?: "free" | "premium";
+}) {
+  const db = await getDb();
+  if (!db) {
+    return thematicTrailSeeds
+      .filter(t => t.published)
+      .filter(t => !filters?.challenge || t.challenge.toLowerCase().includes(filters.challenge.toLowerCase()))
+      .filter(t => !filters?.durationDays || t.durationDays === filters.durationDays)
+      .filter(t => !filters?.accessLevel || t.accessLevel === filters.accessLevel)
+      .map(t => ({
+        id: 0,
+        slug: t.slug,
+        title: t.title,
+        subtitle: t.subtitle,
+        description: t.description,
+        challenge: t.challenge,
+        durationDays: t.durationDays,
+        accessLevel: t.accessLevel,
+        coverColor: t.coverColor,
+        itemCount: t.items.length,
+      }));
+  }
+  await ensureThematicTrails();
+  const conditions = [eq(thematicTrails.published, true)];
+  if (filters?.challenge) conditions.push(like(thematicTrails.challenge, `%${filters.challenge}%`));
+  if (filters?.durationDays) conditions.push(eq(thematicTrails.durationDays, filters.durationDays));
+  if (filters?.accessLevel) conditions.push(eq(thematicTrails.accessLevel, filters.accessLevel));
+
+  const rows = await db.select({
+    id: thematicTrails.id,
+    slug: thematicTrails.slug,
+    title: thematicTrails.title,
+    subtitle: thematicTrails.subtitle,
+    description: thematicTrails.description,
+    challenge: thematicTrails.challenge,
+    durationDays: thematicTrails.durationDays,
+    accessLevel: thematicTrails.accessLevel,
+    coverColor: thematicTrails.coverColor,
+    itemCount: sql<number>`count(${thematicTrailItems.id})`,
+  })
+  .from(thematicTrails)
+  .leftJoin(thematicTrailItems, eq(thematicTrails.id, thematicTrailItems.trailId))
+  .where(and(...conditions))
+  .groupBy(thematicTrails.id)
+  .orderBy(asc(thematicTrails.id));
+
+  return rows.map(r => ({ ...r, itemCount: Number(r.itemCount) }));
+}
+
+export async function getThematicTrailBySlug(slug: string, userId?: number) {
+  const db = await getDb();
+  if (!db) {
+    const seed = thematicTrailSeeds.find(t => t.slug === slug);
+    if (!seed) return undefined;
+    return {
+      ...seed,
+      id: 0,
+      itemCount: seed.items.length,
+      items: seed.items.map(item => {
+        const dev = devotionalSeeds.find(d => d.dayNumber === item.dayNumber);
+        return {
+          id: item.position,
+          position: item.position,
+          dayNumber: item.dayNumber,
+          trailIntro: item.trailIntro ?? null,
+          actionPrompt: item.actionPrompt ?? null,
+          reviewQuestion: item.reviewQuestion ?? null,
+          devotional: dev ? {
+            id: dev.dayNumber,
+            dayNumber: dev.dayNumber,
+            title: dev.title,
+            theme: dev.theme,
+            bibleReference: dev.bibleReference,
+            bibleTranslation: dev.bibleTranslation,
+            bibleText: dev.bibleText,
+            reflection: dev.reflection,
+            practicalActions: dev.practicalActions,
+            dailyQuestion: dev.dailyQuestion,
+            prayer: dev.prayer,
+          } : undefined,
+        };
+      }),
+      userProgress: undefined,
+    };
+  }
+  await ensureThematicTrails();
+  const trailRows = await db.select().from(thematicTrails).where(eq(thematicTrails.slug, slug)).limit(1);
+  if (trailRows.length === 0) return undefined;
+  const trail = trailRows[0];
+
+  const items = await db.select({
+    id: thematicTrailItems.id,
+    position: thematicTrailItems.position,
+    trailIntro: thematicTrailItems.trailIntro,
+    actionPrompt: thematicTrailItems.actionPrompt,
+    reviewQuestion: thematicTrailItems.reviewQuestion,
+    devotional: devotionals,
+  })
+  .from(thematicTrailItems)
+  .innerJoin(devotionals, eq(thematicTrailItems.devotionalId, devotionals.id))
+  .where(eq(thematicTrailItems.trailId, trail.id))
+  .orderBy(asc(thematicTrailItems.position));
+
+  let progressData: {
+    id: number;
+    startedAt: Date;
+    completedAt: Date | null;
+    lastPosition: number;
+    status: "active" | "completed" | "paused";
+    completedItemIds: number[];
+    completedPositions: number[];
+  } | undefined = undefined;
+
+  if (userId) {
+    const progRows = await db.select().from(userTrailProgress).where(
+      and(eq(userTrailProgress.userId, userId), eq(userTrailProgress.trailId, trail.id))
+    ).limit(1);
+    if (progRows.length > 0) {
+      const p = progRows[0];
+      const itemProgRows = await db.select({
+        trailItemId: userTrailItemProgress.trailItemId,
+        position: thematicTrailItems.position,
+      })
+      .from(userTrailItemProgress)
+      .innerJoin(thematicTrailItems, eq(userTrailItemProgress.trailItemId, thematicTrailItems.id))
+      .where(eq(userTrailItemProgress.userTrailProgressId, p.id));
+
+      progressData = {
+        id: p.id,
+        startedAt: p.startedAt,
+        completedAt: p.completedAt,
+        lastPosition: p.lastPosition,
+        status: p.status,
+        completedItemIds: itemProgRows.map(i => i.trailItemId),
+        completedPositions: itemProgRows.map(i => i.position),
+      };
+    }
+  }
+
+  return {
+    ...trail,
+    itemCount: items.length,
+    items,
+    userProgress: progressData,
+  };
+}
+
+export async function startUserTrail(userId: number, trailSlug: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  await ensureThematicTrails();
+  const trailRows = await db.select().from(thematicTrails).where(eq(thematicTrails.slug, trailSlug)).limit(1);
+  if (trailRows.length === 0) throw new Error("Trilha não encontrada");
+  const trail = trailRows[0];
+
+  await db.insert(userTrailProgress).values({
+    userId,
+    trailId: trail.id,
+    startedAt: new Date(),
+    lastPosition: 1,
+    status: "active",
+  }).onDuplicateKeyUpdate({
+    set: {
+      status: "active",
+    },
+  });
+
+  return getThematicTrailBySlug(trailSlug, userId);
+}
+
+export async function toggleTrailItemCompleted(userId: number, trailSlug: string, position: number, completed: boolean, journalContent?: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database unavailable");
+  await ensureThematicTrails();
+  const trailRows = await db.select().from(thematicTrails).where(eq(thematicTrails.slug, trailSlug)).limit(1);
+  if (trailRows.length === 0) throw new Error("Trilha não encontrada");
+  const trail = trailRows[0];
+
+  let progressRow = (await db.select().from(userTrailProgress).where(
+    and(eq(userTrailProgress.userId, userId), eq(userTrailProgress.trailId, trail.id))
+  ).limit(1))[0];
+
+  if (!progressRow) {
+    const [res] = await db.insert(userTrailProgress).values({
+      userId,
+      trailId: trail.id,
+      startedAt: new Date(),
+      lastPosition: position,
+      status: "active",
+    });
+    progressRow = {
+      id: Number(res.insertId),
+      userId,
+      trailId: trail.id,
+      startedAt: new Date(),
+      completedAt: null,
+      lastPosition: position,
+      status: "active",
+    };
+  }
+
+  const itemRows = await db.select().from(thematicTrailItems).where(
+    and(eq(thematicTrailItems.trailId, trail.id), eq(thematicTrailItems.position, position))
+  ).limit(1);
+  if (itemRows.length === 0) throw new Error("Etapa da trilha não encontrada");
+  const trailItem = itemRows[0];
+
+  if (completed) {
+    await db.insert(userTrailItemProgress).values({
+      userTrailProgressId: progressRow.id,
+      trailItemId: trailItem.id,
+      completedAt: new Date(),
+      journalContent: journalContent?.trim() || null,
+    }).onDuplicateKeyUpdate({
+      set: {
+        completedAt: new Date(),
+        journalContent: journalContent?.trim() || null,
+      },
+    });
+  } else {
+    await db.delete(userTrailItemProgress).where(
+      and(
+        eq(userTrailItemProgress.userTrailProgressId, progressRow.id),
+        eq(userTrailItemProgress.trailItemId, trailItem.id)
+      )
+    );
+  }
+
+  const totalItems = await db.select({ count: sql<number>`count(*)` })
+    .from(thematicTrailItems)
+    .where(eq(thematicTrailItems.trailId, trail.id));
+  const completedItems = await db.select({ count: sql<number>`count(*)` })
+    .from(userTrailItemProgress)
+    .where(eq(userTrailItemProgress.userTrailProgressId, progressRow.id));
+
+  const totalCount = Number(totalItems[0]?.count ?? 0);
+  const doneCount = Number(completedItems[0]?.count ?? 0);
+  const isCompleted = totalCount > 0 && doneCount >= totalCount;
+
+  await db.update(userTrailProgress).set({
+    lastPosition: position,
+    status: isCompleted ? "completed" : "active",
+    completedAt: isCompleted ? new Date() : null,
+  }).where(eq(userTrailProgress.id, progressRow.id));
+
+  return getThematicTrailBySlug(trailSlug, userId);
+}
+
+export async function getUserTrailsOverview(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  await ensureThematicTrails();
+
+  const rows = await db.select({
+    id: thematicTrails.id,
+    slug: thematicTrails.slug,
+    title: thematicTrails.title,
+    subtitle: thematicTrails.subtitle,
+    challenge: thematicTrails.challenge,
+    durationDays: thematicTrails.durationDays,
+    accessLevel: thematicTrails.accessLevel,
+    coverColor: thematicTrails.coverColor,
+    startedAt: userTrailProgress.startedAt,
+    completedAt: userTrailProgress.completedAt,
+    lastPosition: userTrailProgress.lastPosition,
+    status: userTrailProgress.status,
+    completedSteps: sql<number>`count(${userTrailItemProgress.id})`,
+    totalSteps: sql<number>`(select count(*) from thematic_trail_items where trailId = thematic_trails.id)`,
+  })
+  .from(userTrailProgress)
+  .innerJoin(thematicTrails, eq(userTrailProgress.trailId, thematicTrails.id))
+  .leftJoin(userTrailItemProgress, eq(userTrailProgress.id, userTrailItemProgress.userTrailProgressId))
+  .where(eq(userTrailProgress.userId, userId))
+  .groupBy(userTrailProgress.id, thematicTrails.id)
+  .orderBy(desc(userTrailProgress.startedAt));
+
+  return rows.map(r => ({
+    ...r,
+    completedSteps: Number(r.completedSteps),
+    totalSteps: Number(r.totalSteps),
+  }));
 }
 
 export async function listDevotionals(search?: string) {

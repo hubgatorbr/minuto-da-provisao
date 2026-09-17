@@ -2,7 +2,7 @@ import { startLogin } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/lib/utils";
-import { BookOpen, CalendarDays, Heart, House, LogOut, Menu, Moon, NotebookPen, Shield, Sparkles, Sun, Trophy, UserRound, X } from "lucide-react";
+import { BookOpen, CalendarDays, Compass, Heart, House, LogOut, Menu, Moon, NotebookPen, Shield, Sparkles, Sun, Trophy, UserRound, X } from "lucide-react";
 import { ReactNode, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 const primaryItems = [
   { href: "/app", label: "Hoje", icon: House },
   { href: "/jornada", label: "Jornada", icon: CalendarDays },
+  { href: "/trilhas", label: "Trilhas", icon: Compass },
   { href: "/diario", label: "Diário", icon: NotebookPen },
   { href: "/favoritos", label: "Favoritos", icon: Heart },
   { href: "/conquistas", label: "Conquistas", icon: Trophy },
@@ -35,7 +36,7 @@ export default function AppShell({ children }: AppShellProps) {
 
   const isCurrent = (href: string) => href === "/" ? location === "/" : location.startsWith(href);
   const NavLinks = ({ compact = false }: { compact?: boolean }) => (
-    <nav className={cn(compact ? "grid grid-cols-3 sm:grid-cols-6" : "space-y-1")}>{(compact ? navItems.filter(item => item.href !== "/admin") : navItems).map(({ href, label, icon: Icon }) => (
+    <nav className={cn(compact ? "grid grid-cols-4 sm:grid-cols-7" : "space-y-1")}>{(compact ? navItems.filter(item => item.href !== "/admin") : navItems).map(({ href, label, icon: Icon }) => (
       <Link key={href} href={href} onClick={() => setMobileMenu(false)} className={cn(
         compact ? "flex flex-col items-center gap-1 px-1 py-2 text-[10px] font-medium" : "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
         isCurrent(href) ? "bg-[#d9b45e]/15 text-[#d9b45e]" : "text-[#9baebe] hover:bg-white/5 hover:text-white"

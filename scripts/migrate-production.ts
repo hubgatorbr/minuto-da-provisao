@@ -1,5 +1,6 @@
 import mysql from "mysql2/promise";
 import { devotionals } from "../shared/devotionals.ts";
+import { thematicTrailSeeds } from "../shared/thematic-trails.ts";
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) throw new Error("DATABASE_URL is required");
@@ -15,6 +16,10 @@ const statements = [
   `CREATE TABLE IF NOT EXISTS user_streaks (userId int NOT NULL, currentStreak int NOT NULL DEFAULT 0, longestStreak int NOT NULL DEFAULT 0, lastCompletedDate timestamp NULL, updatedAt timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, CONSTRAINT user_streaks_userId PRIMARY KEY (userId), CONSTRAINT user_streaks_userId_users_id_fk FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE)`,
   `CREATE TABLE IF NOT EXISTS achievements (id int AUTO_INCREMENT NOT NULL, name varchar(120) NOT NULL, description text NOT NULL, icon varchar(32) NOT NULL, requirementType varchar(32) NOT NULL, requirementValue int NOT NULL, createdAt timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT achievements_id PRIMARY KEY (id), CONSTRAINT achievements_name_unique UNIQUE (name))`,
   `CREATE TABLE IF NOT EXISTS user_achievements (id int AUTO_INCREMENT NOT NULL, userId int NOT NULL, achievementId int NOT NULL, unlockedAt timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT user_achievements_id PRIMARY KEY (id), CONSTRAINT user_achievements_user_achievement_unique UNIQUE (userId, achievementId), CONSTRAINT user_achievements_userId_users_id_fk FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE, CONSTRAINT user_achievements_achievementId_achievements_id_fk FOREIGN KEY (achievementId) REFERENCES achievements(id) ON DELETE CASCADE)`,
+  `CREATE TABLE IF NOT EXISTS thematic_trails (id int AUTO_INCREMENT NOT NULL, slug varchar(120) NOT NULL, title varchar(180) NOT NULL, subtitle varchar(240) NOT NULL, description text NOT NULL, challenge varchar(120) NOT NULL, durationDays int NOT NULL, accessLevel varchar(16) NOT NULL DEFAULT 'free', coverColor varchar(32) NOT NULL DEFAULT '#102a43', published boolean NOT NULL DEFAULT true, catalogRevision varchar(32) NOT NULL DEFAULT 'editorial-v4.5', createdAt timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, updatedAt timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, CONSTRAINT thematic_trails_id PRIMARY KEY (id), CONSTRAINT thematic_trails_slug_unique UNIQUE (slug))`,
+  `CREATE TABLE IF NOT EXISTS thematic_trail_items (id int AUTO_INCREMENT NOT NULL, trailId int NOT NULL, devotionalId int NOT NULL, position int NOT NULL, trailIntro text, actionPrompt text, reviewQuestion text, createdAt timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, CONSTRAINT thematic_trail_items_id PRIMARY KEY (id), CONSTRAINT thematic_trail_items_trail_position_unique UNIQUE (trailId, position), CONSTRAINT thematic_trail_items_trail_devotional_unique UNIQUE (trailId, devotionalId), CONSTRAINT thematic_trail_items_trailId_fk FOREIGN KEY (trailId) REFERENCES thematic_trails(id) ON DELETE CASCADE, CONSTRAINT thematic_trail_items_devotionalId_fk FOREIGN KEY (devotionalId) REFERENCES devotionals(id) ON DELETE CASCADE)`,
+  `CREATE TABLE IF NOT EXISTS user_trail_progress (id int AUTO_INCREMENT NOT NULL, userId int NOT NULL, trailId int NOT NULL, startedAt timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, completedAt timestamp NULL, lastPosition int NOT NULL DEFAULT 1, status varchar(16) NOT NULL DEFAULT 'active', CONSTRAINT user_trail_progress_id PRIMARY KEY (id), CONSTRAINT user_trail_progress_user_trail_unique UNIQUE (userId, trailId), CONSTRAINT user_trail_progress_userId_fk FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE, CONSTRAINT user_trail_progress_trailId_fk FOREIGN KEY (trailId) REFERENCES thematic_trails(id) ON DELETE CASCADE)`,
+  `CREATE TABLE IF NOT EXISTS user_trail_item_progress (id int AUTO_INCREMENT NOT NULL, userTrailProgressId int NOT NULL, trailItemId int NOT NULL, completedAt timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, journalContent text, CONSTRAINT user_trail_item_progress_id PRIMARY KEY (id), CONSTRAINT user_trail_item_progress_unique UNIQUE (userTrailProgressId, trailItemId), CONSTRAINT user_trail_item_progress_progress_fk FOREIGN KEY (userTrailProgressId) REFERENCES user_trail_progress(id) ON DELETE CASCADE, CONSTRAINT user_trail_item_progress_item_fk FOREIGN KEY (trailItemId) REFERENCES thematic_trail_items(id) ON DELETE CASCADE)`,
   `ALTER TABLE users MODIFY COLUMN role varchar(16) NOT NULL DEFAULT 'user'`,
 ];
 
@@ -29,6 +34,7 @@ try {
 
   const rows = devotionals.map(item => [item.dayNumber, item.month, item.journey, item.title, item.theme, item.bibleReference, item.bibleTranslation, item.catalogRevision, item.bibleText, item.reflection, JSON.stringify(item.practicalActions), item.dailyQuestion, item.prayer, item.published ? 1 : 0]);
   await connection.query(`INSERT INTO devotionals (dayNumber, month, journey, title, theme, bibleReference, bibleTranslation, catalogRevision, bibleText, reflection, practicalActions, dailyQuestion, prayer, published) VALUES ? ON DUPLICATE KEY UPDATE month=VALUES(month), journey=VALUES(journey), title=VALUES(title), theme=VALUES(theme), bibleReference=VALUES(bibleReference), bibleTranslation=VALUES(bibleTranslation), catalogRevision=VALUES(catalogRevision), bibleText=VALUES(bibleText), reflection=VALUES(reflection), practicalActions=VALUES(practicalActions), dailyQuestion=VALUES(dailyQuestion), prayer=VALUES(prayer), published=VALUES(published)`, [rows]);
+
   const achievementRows = [
     ["Primeiro Minuto", "Concluiu o primeiro devocional.", "trophy", "completed", 1],
     ["Uma Semana", "Construiu sete dias consecutivos de constância.", "flame", "streak", 7],
@@ -37,5 +43,29 @@ try {
     ["Um Ano de Propósito", "Concluiu os 365 dias da jornada.", "crown", "completed", 365],
   ];
   await connection.query(`INSERT INTO achievements (name, description, icon, requirementType, requirementValue) VALUES ? ON DUPLICATE KEY UPDATE description=VALUES(description), icon=VALUES(icon), requirementType=VALUES(requirementType), requirementValue=VALUES(requirementValue)`, [achievementRows]);
-  console.log(`Database ready: ${rows.length} devotionals and ${achievementRows.length} achievements synchronized.`);
+
+  // Sincronizar Trilhas Temáticas
+  for (const trail of thematicTrailSeeds) {
+    await connection.query(
+      `INSERT INTO thematic_trails (slug, title, subtitle, description, challenge, durationDays, accessLevel, coverColor, published, catalogRevision) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE title=VALUES(title), subtitle=VALUES(subtitle), description=VALUES(description), challenge=VALUES(challenge), durationDays=VALUES(durationDays), accessLevel=VALUES(accessLevel), coverColor=VALUES(coverColor), published=VALUES(published), catalogRevision=VALUES(catalogRevision)`,
+      [trail.slug, trail.title, trail.subtitle, trail.description, trail.challenge, trail.durationDays, trail.accessLevel, trail.coverColor, trail.published ? 1 : 0, trail.catalogRevision]
+    );
+
+    const [trailRows] = await connection.query<any[]>(`SELECT id FROM thematic_trails WHERE slug = ? LIMIT 1`, [trail.slug]);
+    const trailId = trailRows[0]?.id;
+    if (trailId && trail.items.length > 0) {
+      for (const item of trail.items) {
+        const [devRows] = await connection.query<any[]>(`SELECT id FROM devotionals WHERE dayNumber = ? LIMIT 1`, [item.dayNumber]);
+        const devotionalId = devRows[0]?.id;
+        if (devotionalId) {
+          await connection.query(
+            `INSERT INTO thematic_trail_items (trailId, devotionalId, position, trailIntro, actionPrompt, reviewQuestion) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE devotionalId=VALUES(devotionalId), trailIntro=VALUES(trailIntro), actionPrompt=VALUES(actionPrompt), reviewQuestion=VALUES(reviewQuestion)`,
+            [trailId, devotionalId, item.position, item.trailIntro || null, item.actionPrompt || null, item.reviewQuestion || null]
+          );
+        }
+      }
+    }
+  }
+
+  console.log(`Database ready: ${rows.length} devotionals, ${achievementRows.length} achievements, and ${thematicTrailSeeds.length} thematic trails synchronized.`);
 } finally { await connection.end(); }

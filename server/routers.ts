@@ -5,6 +5,7 @@ import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import { storagePut } from "./storage";
 import { getJourneyStats, updateUserAvatar } from "./db";
 import { devotionalRouter } from "./routers/devotionals";
+import { trailRouter } from "./routers/trails";
 import { z } from "zod";
 
 export const appRouter = router({
@@ -18,6 +19,7 @@ export const appRouter = router({
     }),
   }),
   devotional: devotionalRouter,
+  trails: trailRouter,
   journey: router({
     stats: protectedProcedure.query(({ ctx }) => getJourneyStats(ctx.user.id)),
   }),

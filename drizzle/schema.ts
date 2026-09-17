@@ -94,8 +94,68 @@ export const userAchievements = mysqlTable("user_achievements", {
   unlockedAt: timestamp("unlockedAt").defaultNow().notNull(),
 }, table => [uniqueIndex("user_achievements_user_achievement_unique").on(table.userId, table.achievementId)]);
 
+export const thematicTrails = mysqlTable("thematic_trails", {
+  id: int("id").autoincrement().primaryKey(),
+  slug: varchar("slug", { length: 120 }).notNull().unique(),
+  title: varchar("title", { length: 180 }).notNull(),
+  subtitle: varchar("subtitle", { length: 240 }).notNull(),
+  description: text("description").notNull(),
+  challenge: varchar("challenge", { length: 120 }).notNull(),
+  durationDays: int("durationDays").notNull(),
+  accessLevel: mysqlEnum("accessLevel", ["free", "premium"]).notNull().default("free"),
+  coverColor: varchar("coverColor", { length: 32 }).notNull().default("#102a43"),
+  published: boolean("published").notNull().default(true),
+  catalogRevision: varchar("catalogRevision", { length: 32 }).notNull().default("editorial-v4.5"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export const thematicTrailItems = mysqlTable("thematic_trail_items", {
+  id: int("id").autoincrement().primaryKey(),
+  trailId: int("trailId").notNull().references(() => thematicTrails.id, { onDelete: "cascade" }),
+  devotionalId: int("devotionalId").notNull().references(() => devotionals.id, { onDelete: "cascade" }),
+  position: int("position").notNull(),
+  trailIntro: text("trailIntro"),
+  actionPrompt: text("actionPrompt"),
+  reviewQuestion: text("reviewQuestion"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, table => [
+  uniqueIndex("thematic_trail_items_trail_position_unique").on(table.trailId, table.position),
+  uniqueIndex("thematic_trail_items_trail_devotional_unique").on(table.trailId, table.devotionalId),
+]);
+
+export const userTrailProgress = mysqlTable("user_trail_progress", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  trailId: int("trailId").notNull().references(() => thematicTrails.id, { onDelete: "cascade" }),
+  startedAt: timestamp("startedAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"),
+  lastPosition: int("lastPosition").notNull().default(1),
+  status: mysqlEnum("status", ["active", "completed", "paused"]).notNull().default("active"),
+}, table => [
+  uniqueIndex("user_trail_progress_user_trail_unique").on(table.userId, table.trailId),
+]);
+
+export const userTrailItemProgress = mysqlTable("user_trail_item_progress", {
+  id: int("id").autoincrement().primaryKey(),
+  userTrailProgressId: int("userTrailProgressId").notNull().references(() => userTrailProgress.id, { onDelete: "cascade" }),
+  trailItemId: int("trailItemId").notNull().references(() => thematicTrailItems.id, { onDelete: "cascade" }),
+  completedAt: timestamp("completedAt").defaultNow().notNull(),
+  journalContent: text("journalContent"),
+}, table => [
+  uniqueIndex("user_trail_item_progress_progress_item_unique").on(table.userTrailProgressId, table.trailItemId),
+]);
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type Devotional = typeof devotionals.$inferSelect;
 export type Achievement = typeof achievements.$inferSelect;
 export type UserAchievement = typeof userAchievements.$inferSelect;
+export type ThematicTrail = typeof thematicTrails.$inferSelect;
+export type InsertThematicTrail = typeof thematicTrails.$inferInsert;
+export type ThematicTrailItem = typeof thematicTrailItems.$inferSelect;
+export type InsertThematicTrailItem = typeof thematicTrailItems.$inferInsert;
+export type UserTrailProgress = typeof userTrailProgress.$inferSelect;
+export type InsertUserTrailProgress = typeof userTrailProgress.$inferInsert;
+export type UserTrailItemProgress = typeof userTrailItemProgress.$inferSelect;
+export type InsertUserTrailItemProgress = typeof userTrailItemProgress.$inferInsert;

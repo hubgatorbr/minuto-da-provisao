@@ -16,6 +16,9 @@ import LandingPage from "./pages/LandingPage";
 import Legal from "./pages/Legal";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
+import Trails from "./pages/Trails";
+import TrailDetail from "./pages/TrailDetail";
+import TrailDay from "./pages/TrailDay";
 import type { ComponentType } from "react";
 
 function AuthenticatedPage({ page: Page }: { page: ComponentType }) {
@@ -32,6 +35,9 @@ function Router() {
     <Route path="/app" component={() => <AuthenticatedPage page={AppHome} />} />
     <Route path="/devocional/:dayNumber" component={() => <AuthenticatedPage page={Devotional} />} />
     <Route path="/jornada" component={() => <AuthenticatedPage page={Journey} />} />
+    <Route path="/trilhas" component={Trails} />
+    <Route path="/trilhas/:slug" component={TrailDetail} />
+    <Route path="/trilhas/:slug/dia/:position" component={TrailDay} />
     <Route path="/diario" component={() => <AuthenticatedPage page={Journal} />} />
     <Route path="/favoritos" component={() => <AuthenticatedPage page={Favorites} />} />
     <Route path="/conquistas" component={() => <AuthenticatedPage page={Achievements} />} />

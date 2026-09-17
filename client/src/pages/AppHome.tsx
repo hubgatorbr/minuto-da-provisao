@@ -6,7 +6,7 @@ import { startLogin } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { getBibleTranslation } from "@shared/bible-translations";
-import { ArrowRight, BookOpen, CheckCircle2, ChevronRight, Clock3, Flame, Heart, Loader2, Sparkles, Target } from "lucide-react";
+import { ArrowRight, BookOpen, CheckCircle2, ChevronRight, Clock3, Compass, Flame, Heart, Loader2, Sparkles, Target } from "lucide-react";
 import { Link, useLocation } from "wouter";
 
 function dayOfYear() { const now = new Date(); const start = new Date(now.getFullYear(), 0, 0); return Math.floor((now.getTime() - start.getTime()) / 86400000); }
@@ -35,6 +35,35 @@ export default function AppHome() {
     <section className="relative overflow-hidden rounded-[28px] bg-[#102a43] px-6 py-8 text-white shadow-[0_18px_50px_rgba(16,40,32,.14)] sm:px-9 sm:py-10">
       <div className="absolute -right-16 -top-20 h-64 w-64 rounded-full bg-[#d9b45e]/10 blur-3xl" /><div className="absolute bottom-0 right-0 h-28 w-4/5 bg-gradient-to-r from-transparent to-[#d9b45e]/10" />
       <div className="relative max-w-2xl"><p className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[.22em] text-[#d9b45e]"><Sparkles className="h-3.5 w-3.5" /> Seu encontro diário</p><h1 className="font-serif text-3xl font-semibold tracking-tight sm:text-4xl">{greeting()}, {displayName}.</h1><p className="mt-3 max-w-xl text-sm leading-6 text-[#c9d8e4] sm:text-base">Antes de cuidar dos seus negócios, cuide daquilo que sustenta sua caminhada.</p>{!isAuthenticated && <Button onClick={startLogin} variant="outline" className="mt-6 border-[#d9b45e]/40 bg-[#d9b45e]/10 text-[#f5df9f] hover:bg-[#d9b45e]/20">Começar minha jornada <ArrowRight className="ml-2 h-4 w-4" /></Button>}</div>
+    </section>
+
+    {/* Seção Destaque: Trilhas Temáticas */}
+    <section className="mt-7 rounded-[26px] border border-[#e5dfd1] bg-gradient-to-r from-white via-[#faf8f2] to-white p-6 shadow-sm dark:border-white/10 dark:bg-none dark:bg-[#15263b] sm:p-7">
+      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+        <div className="max-w-2xl">
+          <div className="flex items-center gap-2">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#d9b45e]/20 text-[#a07c34]">
+              <Compass className="h-4 w-4" />
+            </span>
+            <p className="text-xs font-bold uppercase tracking-[.18em] text-[#a07c34]">
+              Nova funcionalidade: Trilhas Temáticas
+            </p>
+          </div>
+          <h2 className="mt-2 font-serif text-2xl font-semibold text-[#102a43] dark:text-[#eeeade]">
+            Passos focados para desafios específicos da empresa.
+          </h2>
+          <p className="mt-1 text-xs leading-5 text-[#6c7b72] dark:text-[#aab8af]">
+            Experimente a trilha de 7 dias sobre <strong>Ansiedade Financeira</strong>: aprenda a separar fatos de suposições, dialogar sobre dinheiro e entregar o controle a Deus com prudência.
+          </p>
+        </div>
+        <div className="shrink-0">
+          <Link href="/trilhas">
+            <Button className="h-11 rounded-xl bg-[#102a43] px-5 text-xs font-semibold text-white hover:bg-[#1b436b]">
+              Explorar Trilhas <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+      </div>
     </section>
 
     <section className="mt-7 grid gap-5 xl:grid-cols-[minmax(0,1.6fr)_minmax(300px,.8fr)]">
