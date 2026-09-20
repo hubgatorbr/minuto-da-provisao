@@ -3,6 +3,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/lib/utils";
 import { BookOpen, CalendarDays, Compass, Heart, House, LogOut, Menu, Moon, NotebookPen, Shield, Sparkles, Sun, Trophy, UserRound, X } from "lucide-react";
+import { CreditCard } from "lucide-react";
 import { ReactNode, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ const primaryItems = [
   { href: "/diario", label: "Diário", icon: NotebookPen },
   { href: "/favoritos", label: "Favoritos", icon: Heart },
   { href: "/conquistas", label: "Conquistas", icon: Trophy },
+  { href: "/planos", label: "Planos", icon: CreditCard },
   { href: "/perfil", label: "Perfil", icon: UserRound },
 ];
 

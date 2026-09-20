@@ -43,6 +43,13 @@
       "when": 1788826950767,
       "tag": "0005_large_jazinda",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1789926754184,
+      "tag": "0006_public_shinobi_shaw",
+      "breakpoints": true
     }
   ]
 }

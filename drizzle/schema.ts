@@ -144,10 +144,43 @@ export const userTrailItemProgress = mysqlTable("user_trail_item_progress", {
   journalContent: text("journalContent"),
 }, table => [
   uniqueIndex("user_trail_item_progress_progress_item_unique").on(table.userTrailProgressId, table.trailItemId),
+  ]);
+
+export const subscriptions = mysqlTable("subscriptions", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  planId: mysqlEnum("planId", ["free", "starter", "premium"]).notNull().default("free"),
+  status: mysqlEnum("status", ["active", "trialing", "past_due", "canceled", "incomplete", "expired"]).notNull().default("trialing"),
+  stripeCustomerId: varchar("stripeCustomerId", { length: 120 }),
+  stripeSubscriptionId: varchar("stripeSubscriptionId", { length: 120 }),
+  stripePriceId: varchar("stripePriceId", { length: 120 }),
+  currentPeriodStart: timestamp("currentPeriodStart"),
+  currentPeriodEnd: timestamp("currentPeriodEnd"),
+  trialStart: timestamp("trialStart"),
+  trialEnd: timestamp("trialEnd"),
+  cancelAtPeriodEnd: boolean("cancelAtPeriodEnd").notNull().default(false),
+  canceledAt: timestamp("canceledAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, table => [
+  uniqueIndex("subscriptions_user_unique").on(table.userId),
+  uniqueIndex("subscriptions_stripe_subscription_unique").on(table.stripeSubscriptionId),
 ]);
+
+export const paymentAuditLogs = mysqlTable("payment_audit_logs", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").references(() => users.id, { onDelete: "set null" }),
+  stripeEventId: varchar("stripeEventId", { length: 120 }).notNull().unique(),
+  eventType: varchar("eventType", { length: 100 }).notNull(),
+  payload: text("payload"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
+export type Subscription = typeof subscriptions.$inferSelect;
+export type InsertSubscription = typeof subscriptions.$inferInsert;
+export type PaymentAuditLog = typeof paymentAuditLogs.$inferSelect;
 export type Devotional = typeof devotionals.$inferSelect;
 export type Achievement = typeof achievements.$inferSelect;
 export type UserAchievement = typeof userAchievements.$inferSelect;

@@ -5,6 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { startLogin } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
+import { canAccessTrail } from "@shared/plans";
 import {
   AlertCircle,
   ArrowLeft,
@@ -14,6 +15,7 @@ import {
   CheckCircle2,
   Clock,
   Compass,
+  Crown,
   FileText,
   Lock,
   Play,
@@ -31,6 +33,7 @@ export default function TrailDetail() {
   const utils = trpc.useUtils();
 
   const trailQuery = trpc.trails.getBySlug.useQuery({ slug }, { enabled: !!slug });
+  const subQuery = trpc.plans.mySubscription.useQuery(undefined, { enabled: isAuthenticated });
   const startMutation = trpc.trails.start.useMutation({
     onSuccess: (data) => {
       utils.trails.getBySlug.setData({ slug }, data);
@@ -75,11 +78,24 @@ export default function TrailDetail() {
   const progressPercent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
   const isStarted = !!trail.userProgress;
   const isAllCompleted = completedCount > 0 && completedCount >= totalCount;
+  const mySub = subQuery.data;
+  const hasTrailAccess = !isAuthenticated
+    ? trail.accessLevel === "free"
+    : canAccessTrail(trail.accessLevel, {
+        planId: mySub?.planId || "free",
+        isActive: mySub?.isActive ?? true,
+        isTrialing: mySub?.isTrialing ?? true,
+      });
 
   const handleStartTrail = () => {
     if (!isAuthenticated) {
       toast.message("Entre para registrar seu progresso na trilha.");
       startLogin();
+      return;
+    }
+    if (!hasTrailAccess) {
+      toast.error("Esta trilha é exclusiva para assinantes Premium ou período gratuito.");
+      navigate("/planos");
       return;
     }
     startMutation.mutate({ slug });
@@ -176,7 +192,15 @@ export default function TrailDetail() {
                   disabled={startMutation.isPending}
                   className="rounded-xl bg-[#102a43] px-6 text-xs font-semibold text-white hover:bg-[#183c5c]"
                 >
-                  <Play className="mr-2 h-4 w-4" /> Iniciar Trilha
+                  {!hasTrailAccess ? (
+                    <>
+                      <Crown className="mr-2 h-4 w-4 text-[#d9b45e]" /> Desbloquear no Premium
+                    </>
+                  ) : (
+                    <>
+                      <Play className="mr-2 h-4 w-4" /> Iniciar Trilha
+                    </>
+                  )}
                 </Button>
               </div>
             )}

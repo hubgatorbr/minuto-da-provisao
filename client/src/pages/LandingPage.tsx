@@ -40,6 +40,7 @@ const navItems = [
   { href: "#jornada", label: "Jornada" },
   { href: "#experiencia", label: "Experiência" },
   { href: "#para-quem", label: "Para quem é" },
+  { href: "#planos", label: "Planos" },
   { href: "#faq", label: "FAQ" },
 ];
 
@@ -388,6 +389,21 @@ export default function LandingPage() {
             <div className="landing-section-heading"><p className="landing-eyebrow"><span /> COMO FUNCIONA</p><h2>Simples para começar.<br />Profundo para continuar.</h2></div>
             <div className="how-grid"><article><span>01</span><div><BookOpen /></div><h3>Abra seu Minuto</h3><p>Todos os dias você encontra uma nova reflexão.</p></article><article><span>02</span><div><Clock3 /></div><h3>Pare por 5 minutos</h3><p>Leia, reflita e ore com calma e intenção.</p></article><article><span>03</span><div><ArrowRight /></div><h3>Leve para o seu dia</h3><p>Transforme a reflexão em uma atitude prática.</p></article></div>
             <div className="mid-cta"><div><span>COMECE COM CINCO MINUTOS</span><h3>Você não precisa mudar tudo hoje.</h3><p>Comece separando alguns minutos para ouvir Deus.</p></div><a className="landing-button landing-button--gold" href={PUBLISHED_APP_LOGIN_URL}>COMEÇAR AGORA <ArrowRight /></a></div>
+          </div>
+        </section>
+
+        <section id="planos" className="plans-section landing-section">
+          <div className="landing-container">
+            <div className="landing-section-heading landing-section-heading--light">
+              <p className="landing-eyebrow"><span /> PLANOS DE ASSINATURA</p>
+              <h2>Escolha como deseja caminhar com o Minuto da Provisão.</h2>
+              <p>Experimente todos os recursos gratuitamente por 7 dias. Depois, escolha a continuidade ideal para a sua rotina.</p>
+            </div>
+            <div className="mt-8 flex justify-center">
+              <a className="landing-button landing-button--gold" href="/planos">
+                VER TABELA COMPLETA DE PLANOS <ArrowRight />
+              </a>
+            </div>
           </div>
         </section>
 

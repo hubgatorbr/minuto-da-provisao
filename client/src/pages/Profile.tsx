@@ -5,7 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import { startLogin } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
-import { BellRing, Camera, Check, Clock3, Crown, Flame, LogOut, Medal, Sparkles, Target, Trophy, UserRound, X } from "lucide-react";
+import { BellRing, Camera, Check, Clock3, CreditCard, Crown, ExternalLink, Flame, LogOut, Medal, Sparkles, Target, Trophy, UserRound, X } from "lucide-react";
 import { ChangeEvent, useEffect, useState } from "react";
 import { Link } from "wouter";
 import { toast } from "sonner";
@@ -17,6 +17,15 @@ export default function Profile() {
   const utils = trpc.useUtils();
   const stateQuery = trpc.devotional.state.useQuery(undefined, { enabled: isAuthenticated });
   const journeyQuery = trpc.journey.stats.useQuery(undefined, { enabled: isAuthenticated });
+  const subQuery = trpc.plans.mySubscription.useQuery(undefined, { enabled: isAuthenticated });
+  const portalMutation = trpc.plans.createPortalSession.useMutation({
+    onSuccess: (data: any) => {
+      if (data.url) window.location.href = data.url;
+    },
+    onError: (err: any) => {
+      toast.error(err.message || "Não foi possível abrir o portal Stripe.");
+    },
+  });
   const preferences = stateQuery.data?.preferences;
   const [goal, setGoal] = useState(""); const [challenge, setChallenge] = useState(""); const [time, setTime] = useState("07:00"); const [notifications, setNotifications] = useState(true);
   useEffect(() => { setGoal(preferences?.goal || ""); setChallenge(preferences?.mainChallenge || ""); setTime(preferences?.notificationTime || "07:00"); setNotifications(preferences?.notificationsEnabled ?? true); }, [preferences]);
@@ -41,6 +50,46 @@ export default function Profile() {
     <section className="flex flex-col gap-5 rounded-[24px] bg-[#edf3f8] p-6 dark:bg-[#15263b] sm:flex-row sm:items-center">
       <div className="relative"><div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-[#102a43] font-serif text-3xl font-semibold text-[#d9b45e] ring-4 ring-white dark:ring-[#243f5b]">{user?.avatarUrl ? <img src={user.avatarUrl} alt={`Foto de ${name}`} className="h-full w-full object-cover" /> : initials}</div><label className="absolute -bottom-1 -right-1 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-[#d9b45e] text-[#102a43] shadow-lg"><Camera className="h-4 w-4" /><input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={handleAvatar} /></label></div>
       <div className="flex-1"><p className="text-xs font-bold uppercase tracking-[.18em] text-[#a07c34]">Seu perfil</p><h1 className="mt-1 font-serif text-3xl font-semibold">{name}</h1><p className="mt-1 text-sm text-[#708295]">Seu Minuto da Provisão, no seu ritmo.</p><div className="mt-3 flex flex-wrap gap-2"><label className="cursor-pointer rounded-xl border border-[#c5d3df] bg-white px-3 py-2 text-xs font-semibold text-[#265a82]">Alterar foto<input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" onChange={handleAvatar} /></label>{user?.avatarUrl && <button onClick={() => removeAvatarMutation.mutate()} className="rounded-xl border border-[#e5caca] px-3 py-2 text-xs font-semibold text-[#a15858]">Remover foto</button>}</div></div>
+    </section>
+    <section className="mt-6 rounded-[24px] border border-[#dce5ed] bg-white p-6 dark:border-white/10 dark:bg-[#15263b]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-start gap-3.5">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#d9b45e]/20 text-[#a07c34]">
+            <CreditCard className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[.16em] text-[#a07c34]">Plano e Assinatura</p>
+            <h2 className="mt-0.5 font-serif text-xl font-semibold capitalize">
+              Plano {subQuery.data?.planDetails?.name || subQuery.data?.planId || "Gratuito"}
+              {subQuery.data?.isTrialing && <span className="ml-2 text-xs font-normal text-[#8c7438]">(Degustação 7 dias · {subQuery.data.trialDaysRemaining} dias restantes)</span>}
+            </h2>
+            <p className="mt-1 text-xs text-[#718291]">
+              {subQuery.data?.planId === "premium"
+                ? "Acesso completo a todos os devocionais, áudios, trilhas exclusivas e suporte prioritário."
+                : subQuery.data?.planId === "starter"
+                ? "Acesso contínuo aos devocionais em texto, diário de bordo e gamificação."
+                : "Experimentação total da plataforma por 7 dias."}
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/planos">
+            <Button className="rounded-xl bg-[#102a43] text-xs font-semibold text-white hover:bg-[#1a446c]">
+              Ver Planos
+            </Button>
+          </Link>
+          {subQuery.data?.stripeCustomerId && (
+            <Button
+              variant="outline"
+              onClick={() => portalMutation.mutate({ returnUrl: window.location.href })}
+              disabled={portalMutation.isPending}
+              className="rounded-xl border-[#d5e0ea] text-xs font-medium"
+            >
+              Gerenciar no Stripe <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
+            </Button>
+          )}
+        </div>
+      </div>
     </section>
     <section className="mt-6 rounded-[24px] border border-[#dce5ed] bg-white p-6 dark:border-white/10 dark:bg-[#15263b]"><div className="flex items-center justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-[#a07c34]">Minha jornada</p><h2 className="mt-1 font-serif text-2xl font-semibold">Cada marco representa um passo.</h2></div><Link href="/conquistas" className="rounded-xl bg-[#102a43] px-3 py-2 text-xs font-semibold text-white">Ver conquistas</Link></div><div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4"><div className="rounded-2xl bg-[#edf3f8] p-4 dark:bg-white/5"><Target className="h-4 w-4 text-[#3f6e8f]" /><p className="mt-2 text-2xl font-semibold">{journeyQuery.data?.completedCount ?? 0}</p><p className="text-xs text-[#718291]">dias concluídos</p></div><div className="rounded-2xl bg-[#edf3f8] p-4 dark:bg-white/5"><Flame className="h-4 w-4 text-[#c57b38]" /><p className="mt-2 text-2xl font-semibold">{journeyQuery.data?.currentStreak ?? 0}</p><p className="text-xs text-[#718291]">sequência atual</p></div><div className="rounded-2xl bg-[#edf3f8] p-4 dark:bg-white/5"><Sparkles className="h-4 w-4 text-[#b38c31]" /><p className="mt-2 text-2xl font-semibold">{journeyQuery.data?.longestStreak ?? 0}</p><p className="text-xs text-[#718291]">maior sequência</p></div><div className="rounded-2xl bg-[#edf3f8] p-4 dark:bg-white/5"><Trophy className="h-4 w-4 text-[#b38c31]" /><p className="mt-2 text-2xl font-semibold">{journeyQuery.data?.achievements.filter(item => item.unlocked).length ?? 0}</p><p className="text-xs text-[#718291]">conquistas</p></div></div></section>
     <section className="mt-6 space-y-5"><div className="rounded-[24px] border border-[#dce5ed] bg-white p-6 dark:border-white/10 dark:bg-[#15263b]"><div className="flex items-center gap-2"><Target className="h-4 w-4 text-[#b38c31]" /><h2 className="font-serif text-xl font-semibold">Direção da jornada</h2></div><label className="mt-5 block text-xs font-bold uppercase tracking-[.12em] text-[#718291]">Meu objetivo atual</label><Input value={goal} onChange={event => setGoal(event.target.value)} placeholder="Ex.: liderar com mais serenidade e clareza" className="mt-2 h-11 rounded-xl border-[#d5e0ea] bg-white dark:border-white/10 dark:bg-white/5" /><label className="mt-6 block text-xs font-bold uppercase tracking-[.12em] text-[#718291]">O que mais desafia você hoje?</label><div className="mt-3 flex flex-wrap gap-2">{challenges.map(item => <button key={item} onClick={() => setChallenge(item)} className={challenge === item ? "rounded-full bg-[#102a43] px-3 py-2 text-xs font-semibold text-white" : "rounded-full bg-[#edf1f5] px-3 py-2 text-xs font-semibold text-[#697b8b] dark:bg-white/10 dark:text-[#d3dce5]"}>{item}</button>)}</div></div>
