@@ -6,6 +6,7 @@ import { storagePut } from "./storage";
 import { getJourneyStats, updateUserAvatar } from "./db";
 import { devotionalRouter } from "./routers/devotionals";
 import { trailRouter } from "./routers/trails";
+import { planRouter } from "./routers/plans";
 import { z } from "zod";
 
 export const appRouter = router({
@@ -20,6 +21,7 @@ export const appRouter = router({
   }),
   devotional: devotionalRouter,
   trails: trailRouter,
+  plans: planRouter,
   journey: router({
     stats: protectedProcedure.query(({ ctx }) => getJourneyStats(ctx.user.id)),
   }),

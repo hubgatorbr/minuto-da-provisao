@@ -16,6 +16,7 @@ import LandingPage from "./pages/LandingPage";
 import Legal from "./pages/Legal";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
+import Plans from "./pages/Plans";
 import Trails from "./pages/Trails";
 import TrailDetail from "./pages/TrailDetail";
 import TrailDay from "./pages/TrailDay";
@@ -32,6 +33,7 @@ function Router() {
     <Route path="/login" component={Login} />
     <Route path="/termos" component={Legal} />
     <Route path="/privacidade" component={Legal} />
+    <Route path="/planos" component={Plans} />
     <Route path="/app" component={() => <AuthenticatedPage page={AppHome} />} />
     <Route path="/devocional/:dayNumber" component={() => <AuthenticatedPage page={Devotional} />} />
     <Route path="/jornada" component={() => <AuthenticatedPage page={Journey} />} />

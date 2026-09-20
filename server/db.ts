@@ -13,6 +13,9 @@ import {
   userAchievements,
   userPreferences,
   userProgress,
+  subscriptions,
+  paymentAuditLogs,
+  Subscription,
   userTrailProgress,
   userTrailItemProgress,
   users,
@@ -573,4 +576,142 @@ export async function getAdminStats() {
   const topDevotionals = await db.select({ id: devotionals.id, dayNumber: devotionals.dayNumber, title: devotionals.title, count: sql<number>`count(${userProgress.id})` }).from(devotionals).leftJoin(userProgress, and(eq(userProgress.devotionalId, devotionals.id), eq(userProgress.completed, true))).groupBy(devotionals.id).orderBy(desc(sql`count(${userProgress.id})`)).limit(5);
   const achievementStats = await db.select({ name: achievements.name, description: achievements.description, requirementValue: achievements.requirementValue, unlocked: sql<number>`count(${userAchievements.id})` }).from(achievements).leftJoin(userAchievements, eq(userAchievements.achievementId, achievements.id)).groupBy(achievements.id);
   return { users: Number(userCount?.value ?? 0), activeUsers: Number(activeCount?.value ?? 0), completions: Number(completionCount?.value ?? 0), completionRate: Number(userCount?.value ?? 0) ? Math.round((Number(completionCount?.value ?? 0) / (Number(userCount?.value ?? 0) * 365)) * 100) : 0, topDevotionals, achievements: achievementStats };
+}
+
+export async function getUserSubscription(userId: number): Promise<{
+  planId: "free" | "starter" | "premium";
+  status: "active" | "trialing" | "past_due" | "canceled" | "incomplete" | "expired";
+  isTrialing: boolean;
+  isActive: boolean;
+  trialDaysRemaining: number;
+  stripeCustomerId: string | null;
+  stripeSubscriptionId: string | null;
+  cancelAtPeriodEnd: boolean;
+  currentPeriodEnd: Date | null;
+}> {
+  const db = await getDb();
+  const now = new Date();
+
+  if (!db) {
+    // Modo fallback sem banco conectado
+    return {
+      planId: "free",
+      status: "trialing",
+      isTrialing: true,
+      isActive: true,
+      trialDaysRemaining: 7,
+      stripeCustomerId: null,
+      stripeSubscriptionId: null,
+      cancelAtPeriodEnd: false,
+      currentPeriodEnd: null,
+    };
+  }
+
+  const existingRows = await db
+    .select()
+    .from(subscriptions)
+    .where(eq(subscriptions.userId, userId))
+    .limit(1);
+
+  if (existingRows.length === 0) {
+    // Novo usuário ganha automaticamente o período gratuito de 7 dias com acesso total
+    const trialEnd = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    await db.insert(subscriptions).values({
+      userId,
+      planId: "free",
+      status: "trialing",
+      trialStart: now,
+      trialEnd,
+    });
+
+    return {
+      planId: "free",
+      status: "trialing",
+      isTrialing: true,
+      isActive: true,
+      trialDaysRemaining: 7,
+      stripeCustomerId: null,
+      stripeSubscriptionId: null,
+      cancelAtPeriodEnd: false,
+      currentPeriodEnd: null,
+    };
+  }
+
+  const sub = existingRows[0];
+  const isTrial = sub.status === "trialing" && Boolean(sub.trialEnd && sub.trialEnd > now);
+  const trialMsRemaining = sub.trialEnd ? Math.max(0, sub.trialEnd.getTime() - now.getTime()) : 0;
+  const trialDaysRemaining = Math.ceil(trialMsRemaining / (24 * 60 * 60 * 1000));
+
+  const isActive = sub.status === "active" || isTrial;
+
+  return {
+    planId: sub.planId,
+    status: isTrial ? "trialing" : sub.status,
+    isTrialing: isTrial,
+    isActive,
+    trialDaysRemaining,
+    stripeCustomerId: sub.stripeCustomerId ?? null,
+    stripeSubscriptionId: sub.stripeSubscriptionId ?? null,
+    cancelAtPeriodEnd: sub.cancelAtPeriodEnd,
+    currentPeriodEnd: sub.currentPeriodEnd ?? null,
+  };
+}
+
+export async function upsertSubscriptionFromStripe(data: {
+  userId: number;
+  planId: "free" | "starter" | "premium";
+  status: "active" | "trialing" | "past_due" | "canceled" | "incomplete" | "expired";
+  stripeCustomerId: string;
+  stripeSubscriptionId: string;
+  stripePriceId?: string | null;
+  currentPeriodStart?: Date | null;
+  currentPeriodEnd?: Date | null;
+  cancelAtPeriodEnd?: boolean;
+}) {
+  const db = await getDb();
+  if (!db) return;
+
+  await db.insert(subscriptions).values({
+    userId: data.userId,
+    planId: data.planId,
+    status: data.status,
+    stripeCustomerId: data.stripeCustomerId,
+    stripeSubscriptionId: data.stripeSubscriptionId,
+    stripePriceId: data.stripePriceId ?? null,
+    currentPeriodStart: data.currentPeriodStart ?? null,
+    currentPeriodEnd: data.currentPeriodEnd ?? null,
+    cancelAtPeriodEnd: data.cancelAtPeriodEnd ?? false,
+  }).onDuplicateKeyUpdate({
+    set: {
+      planId: data.planId,
+      status: data.status,
+      stripeCustomerId: data.stripeCustomerId,
+      stripeSubscriptionId: data.stripeSubscriptionId,
+      stripePriceId: data.stripePriceId ?? null,
+      currentPeriodStart: data.currentPeriodStart ?? null,
+      currentPeriodEnd: data.currentPeriodEnd ?? null,
+      cancelAtPeriodEnd: data.cancelAtPeriodEnd ?? false,
+      updatedAt: new Date(),
+    },
+  });
+}
+
+export async function logPaymentEvent(data: {
+  userId?: number | null;
+  stripeEventId: string;
+  eventType: string;
+  payload?: string | null;
+}) {
+  const db = await getDb();
+  if (!db) return;
+  try {
+    await db.insert(paymentAuditLogs).values({
+      userId: data.userId ?? null,
+      stripeEventId: data.stripeEventId,
+      eventType: data.eventType,
+      payload: data.payload ?? null,
+    });
+  } catch (err) {
+    console.warn("[Payment Log] Event already recorded or failed:", err);
+  }
 }

@@ -6,7 +6,7 @@ import { startLogin } from "@/const";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { getBibleTranslation } from "@shared/bible-translations";
-import { ArrowLeft, ArrowRight, BookMarked, Check, CheckCircle2, Heart, Loader2, LockKeyhole, NotebookPen, Pause, Play, Sparkles, Square, Volume2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookMarked, Check, CheckCircle2, Crown, Heart, Loader2, LockKeyhole, NotebookPen, Pause, Play, Sparkles, Square, Volume2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Link, useLocation, useRoute } from "wouter";
@@ -19,6 +19,7 @@ export default function Devotional() {
   const utils = trpc.useUtils();
   const devotionalQuery = trpc.devotional.byDay.useQuery({ dayNumber });
   const stateQuery = trpc.devotional.state.useQuery(undefined, { enabled: isAuthenticated });
+  const subQuery = trpc.plans.mySubscription.useQuery(undefined, { enabled: isAuthenticated });
   const devotional = devotionalQuery.data;
   const bibleTranslation = getBibleTranslation(devotional?.bibleTranslation);
   const devotionalId = devotional?.id ?? devotional?.dayNumber ?? dayNumber;
@@ -37,6 +38,7 @@ export default function Devotional() {
   const [journal, setJournal] = useState("");
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const canPlayAudio = !isAuthenticated ? true : (subQuery.data?.canAccessAudio ?? true);
   useEffect(() => setJournal(entry), [entry, devotionalId]);
   useEffect(() => () => window.speechSynthesis?.cancel(), []);
   const completionMutation = trpc.devotional.toggleCompleted.useMutation({
@@ -108,6 +110,19 @@ export default function Devotional() {
     <article className="rounded-[28px] border border-[#e6e0d3] bg-[#ffffff] px-6 py-8 shadow-[0_10px_35px_rgba(22,39,29,.05)] dark:border-white/10 dark:bg-[#15263b] sm:px-10 sm:py-11"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-[.18em] text-[#b38c31]">{devotional.theme} · {devotional.month}</p><h1 className="mt-3 font-serif text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl">{devotional.title}</h1></div><button aria-label="Favoritar devocional" onClick={handleFavorite} className={isFavorite ? "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#f9e8e5] text-[#b85b4d]" : "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#f2f1eb] text-[#7c887f] hover:text-[#b85b4d] dark:bg-white/5"}><Heart className={isFavorite ? "h-5 w-5 fill-current" : "h-5 w-5"} /></button></div>
       <div className="mt-8"><BibleReference reference={devotional.bibleReference} translation={devotional.bibleTranslation} text={devotional.bibleText} /></div>
       <section aria-label="Áudio do devocional" className="mt-8 rounded-2xl border border-[#ded7c8] bg-[#f7f3e8] p-5 dark:border-white/10 dark:bg-[#1c344b]"><div className="flex items-start gap-3"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#d9b45e] text-[#102a43]"><Volume2 className="h-5 w-5" /></div><div className="min-w-0 flex-1"><p className="text-xs font-bold uppercase tracking-[.16em] text-[#8d6e2d] dark:text-[#e6d099]">Ouvir este devocional</p><p className="mt-1 text-sm leading-6 text-[#637169] dark:text-[#c4d1c8]">{generatedAudioUrl ? "Locução masculina brasileira, natural e conversacional." : "Leitura em voz clara, suave e pausada para acompanhar sua reflexão."}</p>{generatedAudioUrl ? <audio className="mt-4 w-full" controls preload="metadata" src={generatedAudioUrl}><track kind="captions" /></audio> : <div className="mt-4 flex flex-wrap gap-2"><Button onClick={isSpeaking ? pauseAudio : playAudio} className="rounded-xl bg-[#102a43] text-white hover:bg-[#1e4d73]"><span className="mr-2">{isSpeaking ? (isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />) : <Play className="h-4 w-4" />}</span>{isSpeaking ? (isPaused ? "Continuar" : "Pausar") : "Dar play no áudio"}</Button>{isSpeaking && <Button variant="outline" onClick={stopAudio} className="rounded-xl border-[#cbbd9e] text-[#70591e] dark:text-[#e6d099]"><Square className="mr-2 h-3.5 w-3.5 fill-current" /> Parar</Button>}</div>}</div></div></section>
+      {isAuthenticated && !canPlayAudio && (
+        <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3 rounded-2xl border border-[#d9b45e]/40 bg-[#fbf6ea] p-4 text-xs text-[#7e6022] dark:border-white/10 dark:bg-[#182d3f] dark:text-[#eddcb2]">
+          <div className="flex items-center gap-2">
+            <Crown className="h-4 w-4 text-[#b38c31] shrink-0" />
+            <span>Os áudios dos devocionais são exclusivos do <strong>Plano Premium</strong> (ou durante os 7 dias de degustação).</span>
+          </div>
+          <Link href="/planos">
+            <Button size="sm" className="rounded-xl bg-[#102a43] text-xs font-semibold text-[#d9b45e] hover:bg-[#1c3f61]">
+              Desbloquear no Premium (R$ 14,90/mês)
+            </Button>
+          </Link>
+        </div>
+      )}
       <section className="prose prose-[1.05rem] mt-9 max-w-none leading-8 text-[#3f5147] dark:prose-invert dark:text-[#c8d4cd]"><p className="not-prose mb-5 flex items-center gap-2 text-xs font-bold uppercase tracking-[.16em] text-[#b38c31]"><Sparkles className="h-3.5 w-3.5" /> Reflexão</p>{paragraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>)}</section>
       <section className="mt-10 rounded-2xl bg-[#e8f0f5] p-5 dark:bg-[#1c344b]"><p className="text-xs font-bold uppercase tracking-[.16em] text-[#3f6e8f]">Para colocar em prática hoje</p><ol className="mt-4 space-y-3">{devotional.practicalActions.map((action, index) => <li key={action} className="flex gap-3 text-sm leading-6"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#d5e7f2] text-xs font-bold text-[#2f5d7c] dark:bg-[#315341] dark:text-[#d7ead8]">{index + 1}</span><span>{action}</span></li>)}</ol></section>
       <section className="mt-9"><div className="flex items-center gap-2"><NotebookPen className="h-4 w-4 text-[#b38c31]" /><p className="text-xs font-bold uppercase tracking-[.16em] text-[#a07c34]">Pergunta do dia</p></div><h2 className="mt-3 font-serif text-2xl leading-8">“{devotional.dailyQuestion}”</h2><Textarea value={journal} onChange={event => setJournal(event.target.value)} placeholder="Escreva sua resposta, oração ou aprendizado..." className="mt-5 min-h-32 resize-y rounded-2xl border-[#ded7c8] bg-[#fcfbf7] p-4 leading-6 dark:border-white/10 dark:bg-white/5" /><div className="mt-3 flex justify-end"><Button variant="outline" onClick={handleJournal} disabled={journalMutation.isPending} className="rounded-xl border-[#d5c49c] text-[#70591e] dark:text-[#e6d099]">Salvar no diário</Button></div></section>
